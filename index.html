@@ -3,1353 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasal Points - Rewards Program</title>
+    <title>Pasal Rewards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --accent: #ff0000;
+            --bg: #f9f9f9;
+            --card-bg: #ffffff;
+            --text-main: #0f0f0f;
+            --text-sub: #606060;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
-            color: #1f1f1f;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
         }
 
-        .navbar {
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 15px 40px;
+        nav {
+            background: white;
+            padding: 1rem 10%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #e5e5e5;
         }
 
-        .logo {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #0078d4;
-        }
+        .logo { font-weight: 700; font-size: 1.4rem; color: var(--accent); }
 
-        .nav-links {
-            display: flex;
+        .dashboard {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
             gap: 30px;
         }
 
-        .nav-links a {
-            color: #1f1f1f;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
+        @media (max-width: 850px) { .dashboard { grid-template-columns: 1fr; } }
 
-        .nav-links a:hover {
-            color: #0078d4;
-        }
-
-        .nav-right {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .points-badge {
-            background: #0078d4;
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #0078d4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #0078d4;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #005a9e;
-        }
-
-        .btn-secondary {
-            background: #fff;
-            color: #0078d4;
-            border: 2px solid #0078d4;
-        }
-
-        .btn-secondary:hover {
-            background: #f3f2f1;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .hero {
-            background: #fff;
-            border-radius: 8px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .hero h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            color: #1f1f1f;
-        }
-
-        .hero p {
-            color: #605e5c;
-            font-size: 1.1em;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #fff;
+        .stats-panel {
+            background: var(--card-bg);
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #0078d4;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #605e5c;
-            font-weight: 500;
-        }
-
-        .section-title {
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            color: #1f1f1f;
-        }
-
-        .earn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .earn-card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            position: relative;
-        }
-
-        .earn-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .earn-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .earn-icon {
-            font-size: 2em;
-        }
-
-        .earn-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #1f1f1f;
-        }
-
-        .earn-description {
-            color: #605e5c;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .earn-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .earn-points {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #107c10;
-        }
-
-        .earn-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff8c00;
-            color: #fff;
-            padding: 4px 10px;
             border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            text-align: center;
         }
 
-        .timer-text {
-            color: #d13438;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
+        .points-hero { font-size: 3rem; font-weight: 700; margin: 10px 0; }
 
-        .rewards-grid {
+        .task-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .reward-card {
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-
-        .reward-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .reward-image {
-            height: 200px;
-            background: linear-gradient(135deg, #e1dfdd 0%, #f3f2f1 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4em;
-        }
-
-        .reward-content {
-            padding: 20px;
-        }
-
-        .reward-name {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1f1f1f;
-        }
-
-        .reward-description {
-            color: #605e5c;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-        }
-
-        .reward-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .reward-price {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #0078d4;
-        }
-
-        .history-container {
-            background: #fff;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .history-item {
-            padding: 20px 0;
-            border-bottom: 1px solid #e1dfdd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-left {
-            display: flex;
-            align-items: center;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
         }
 
-        .history-icon {
-            font-size: 2em;
-        }
-
-        .history-details h3 {
-            color: #1f1f1f;
-            margin-bottom: 5px;
-        }
-
-        .history-date {
-            color: #605e5c;
-            font-size: 0.85em;
-        }
-
-        .history-points {
-            font-size: 1.3em;
-            font-weight: 700;
-        }
-
-        .history-points.earned {
-            color: #107c10;
-        }
-
-        .history-points.spent {
-            color: #d13438;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            color: #1f1f1f;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            color: #605e5c;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e5e5e5;
             display: flex;
-        }
-
-        .modal-content {
-            background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            max-width: 460px;
-            width: 90%;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        }
-
-        .modal-header {
-            display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
         }
 
-        .modal-header h2 {
-            font-size: 1.5em;
-            color: #1f1f1f;
-        }
+        .reward-tag { color: #008000; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; display: block; }
 
-        .close-modal {
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #605e5c;
-            background: none;
+        .action-btn {
+            background: #0f0f0f;
+            color: white;
             border: none;
-        }
-
-        .close-modal:hover {
-            color: #d13438;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #1f1f1f;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
             padding: 12px;
-            border: 1px solid #8a8886;
-            border-radius: 4px;
-            font-size: 15px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #0078d4;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .message.success {
-            background: #dff6dd;
-            color: #107c10;
-        }
-
-        .message.error {
-            background: #fde7e9;
-            color: #d13438;
-        }
-
-        .switch-form {
-            text-align: center;
-            margin-top: 20px;
-            color: #605e5c;
-        }
-
-        .switch-form a {
-            color: #0078d4;
-            cursor: pointer;
+            border-radius: 25px;
             font-weight: 600;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #fff;
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 3000;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .toast.show {
-            display: block;
-        }
-
-        .toast.success {
-            border-left: 4px solid #107c10;
-        }
-
-        .toast.error {
-            border-left: 4px solid #d13438;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .progress-bar {
-            background: #e1dfdd;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #0078d4 0%, #00bcf2 100%);
-            height: 100%;
-            transition: width 0.3s;
-        }
-
-        .loading-indicator {
-            text-align: center;
-            padding: 40px;
-            color: #605e5c;
-        }
-
-        .spinner {
-            border: 3px solid #e1dfdd;
-            border-top: 3px solid #0078d4;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .sync-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #107c10;
-            margin-left: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .notification-banner {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .notification-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .notification-icon {
-            font-size: 1.5em;
-        }
-
-        .notification-text {
-            color: #856404;
-            line-height: 1.5;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            color: #856404;
             cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: background 0.3s;
+            margin-top: 15px;
         }
 
-        .notification-close:hover {
-            background: rgba(0,0,0,0.1);
+        .action-btn:disabled {
+            background: #eee;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .action-btn.claim-ready { background: var(--accent); }
+
+        .cooldown-text {
+            font-size: 0.75rem;
+            color: #d93025;
+            margin-top: 5px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">🏆 Pasal Points</div>
-            <div class="nav-links" id="navLinks" style="display: none;">
-                <a id="navDashboard">Dashboard</a>
-                <a id="navEarn">Earn Points</a>
-                <a id="navRedeem">Redeem</a>
-                <a id="navHistory">History</a>
-            </div>
-            <div class="nav-right">
-                <div id="pointsBadge" style="display: none;">
-                    <div class="points-badge">
-                        ⚡ <span id="navPoints">0</span> points
-                        <span class="sync-indicator" id="syncIndicator" style="display:none;"></span>
-                    </div>
-                </div>
-                <div id="authSection">
-                    <button class="btn btn-primary" id="loginBtn">Sign In</button>
-                </div>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container">
-        <!-- Dashboard Page -->
-        <div id="dashboard" class="page active">
-            <div class="hero">
-                <h1 id="welcomeTitle">Welcome to Pasal Points</h1>
-                <p id="welcomeText">Sign in to start earning and redeeming rewards</p>
-            </div>
+<nav>
+    <div class="logo">Pasal Rewards</div>
+</nav>
 
-            <div id="dashboardContent" style="display: none;">
-                <!-- Notification Banner -->
-                <div class="notification-banner" id="notificationBanner">
-                    <div class="notification-content">
-                        <div class="notification-icon">⚠️</div>
-                        <div class="notification-text">
-                            <strong>Important:</strong> The points on refreshing resets to 500. It will take 3 days for the points to successfully come in your ID.
-                        </div>
-                    </div>
-                    <button class="notification-close" id="closeNotification">&times;</button>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">⚡</div>
-                        <div class="stat-value" id="totalPoints">0</div>
-                        <div class="stat-label">Total Points</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🎁</div>
-                        <div class="stat-value" id="totalRedeemed">0</div>
-                        <div class="stat-label">Rewards Redeemed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🔥</div>
-                        <div class="stat-value" id="currentStreak">0</div>
-                        <div class="stat-label">Day Streak</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⭐</div>
-                        <div class="stat-value" id="userLevel">1</div>
-                        <div class="stat-label">Member Level</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="levelProgress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Earn Page -->
-        <div id="earn" class="page">
-            <h2 class="section-title">Ways to Earn Points</h2>
-            <div class="earn-grid" id="earnGrid"></div>
-        </div>
-
-        <!-- Redeem Page -->
-        <div id="redeem" class="page">
-            <h2 class="section-title">Redeem Your Points</h2>
-            <div class="rewards-grid" id="rewardsGrid"></div>
-        </div>
-
-        <!-- History Page -->
-        <div id="history" class="page">
-            <h2 class="section-title">Transaction History</h2>
-            <div class="history-container" id="historyContainer"></div>
-        </div>
+<div class="dashboard">
+    <div class="stats-panel">
+        <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Your Balance</p>
+        <div class="points-hero" id="total-points">0</div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Sign In</h2>
-                <button class="close-modal" id="closeLogin">&times;</button>
-            </div>
-            <div id="loginMessage" class="message" style="display: none;"></div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" required>
+    <div class="content-panel">
+        <h2 style="margin-top:0">Quests</h2>
+        <div class="task-grid">
+            
+            <div class="card" id="task-sub">
+                <div>
+                    <span class="reward-tag">+200 Points</span>
+                    <h4>Subscribe to Channel</h4>
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
-            </form>
-            <div class="switch-form">
-                Don't have an account? <a id="showSignup">Sign up</a>
+                <button class="action-btn" id="btn-sub" onclick="handleYTTask('task-sub', 'https://youtube.com/@YOUR_CHANNEL', 200)">Subscribe</button>
+                <div class="cooldown-text" id="timer-sub">Available in: 24:00:00</div>
             </div>
+
+            <div class="card" id="task-v1">
+                <div>
+                    <span class="reward-tag">+100 Points</span>
+                    <h4>Watch & Like Video</h4>
+                </div>
+                <button class="action-btn" id="btn-v1" onclick="handleYTTask('task-v1', 'https://youtube.com/watch?v=VIDEO1', 100)">Watch Video</button>
+                <div class="cooldown-text" id="timer-v1">Available in: 24:00:00</div>
+            </div>
+
+            <div class="card" id="task-v2">
+                <div>
+                    <span class="reward-tag">+100 Points</span>
+                    <h4>Newest Upload Quest</h4>
+                </div>
+                <button class="action-btn" id="btn-v2" onclick="handleYTTask('task-v2', 'https://youtube.com/watch?v=VIDEO2', 100)">Watch Now</button>
+                <div class="cooldown-text" id="timer-v2">Available in: 24:00:00</div>
+            </div>
+
         </div>
     </div>
+</div>
 
-    <!-- Signup Modal -->
-    <div class="modal" id="signupModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create Account</h2>
-                <button class="close-modal" id="closeSignup">&times;</button>
-            </div>
-            <div id="signupMessage" class="message" style="display: none;"></div>
-            <form id="signupForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="signupEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signupPassword" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
-            </form>
-            <div class="switch-form">
-                Already have an account? <a id="showLogin">Sign in</a>
-            </div>
-        </div>
-    </div>
+<script>
+    let points = parseInt(localStorage.getItem('pasal_points')) || 0;
+    const COOLDOWN_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    function updatePointsDisplay() {
+        document.getElementById('total-points').innerText = points.toLocaleString();
+    }
 
-    <!-- Share Modal -->
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Share with Friends</h2>
-                <button class="close-modal" id="closeShare">&times;</button>
-            </div>
-            <p style="margin-bottom: 20px; color: #605e5c;">Copy and share this link with your friends!</p>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="shareLink" value="YOUR_SHARE_LINK_HERE" readonly style="flex: 1; padding: 12px; border: 1px solid #8a8886; border-radius: 4px; font-size: 15px;">
-                <button class="btn btn-primary" id="copyLinkBtn">Copy Link</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        const app = initializeApp({
-            apiKey: "AIzaSyA6sK1W0vTxkuVGxlr5kyKkhEdfrxErXBc",
-            authDomain: "pasal-login.firebaseapp.com",
-            projectId: "pasal-login",
-            storageBucket: "pasal-login.firebasestorage.app",
-            messagingSenderId: "116655626018",
-            appId: "1:116655626018:web:a11398e05d147a044f777b",
-            measurementId: "G-LG0CPFJL90"
-        });
-
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        setPersistence(auth, browserLocalPersistence);
-
-        let currentUser = null;
-        let unsubscribe = null;
-        let userData = {
-            points: 0,
-            history: [],
-            activities: [],
-            streak: 0,
-            lastLogin: null,
-            level: 1
-        };
-
-        const earnActivities = [
-            { id: 'daily', icon: '📅', title: 'Daily Check-in', desc: 'Login daily to earn bonus points', points: 50, cooldown: 24 * 60 * 60 * 1000, badge: 'DAILY' },
-            { id: 'subscribe', icon: '▶️', title: 'Subscribe on YouTube', desc: 'Subscribe to our YouTube channel', points: 200, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/@AnimatedSheikh', badge: 'DAILY' },
-            { id: 'watch full and like 1', icon: '📺', title: 'watch full video', desc: 'Watch: What Happens If You Double Your Money Every Day?', points: 30, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q', badge: 'DAILY' },
-            { id: 'watch full and like 2', icon: '📺', title: 'watch and like full video', desc: 'like video', points: 10, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ', badge: 'DAILY' },
-            { id: 'watch and like 3', icon: '📺', title: 'watch full video', desc: 'like video', points: 25, cooldown: 6 * 60 * 60 * 1000, link: 'https://www.youtube.com/shorts/VHvKMKgbpuM' },
-            { id: 'watch and like 4', icon: '📺', title: 'watch full video', desc: 'like video', points: 150, cooldown: 7 * 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/shorts/ytAOSALIHeE', badge: 'WEEKLY' },
-            { id: 'share', icon: '📤', title: 'watch full video', desc: 'https://brendonbhatta.github.io/Pasal/', points: 0, cooldown: 0, isShare: true }
-        ];
-
-        const rewards = [
-            { id: 1, icon: '🎮', name: 'Xbox Gift Card', desc: '$10 Xbox Store credit', points: 10000 },
-            { id: 2, icon: '🎮', name: 'Roblox 1000 Robux', desc: '1000 Robux for Roblox', points: 15000 },
-            { id: 3, icon: '🎮', name: 'Roblox 2000 Robux', desc: '2000 Robux for Roblox', points: 25000 },
-            { id: 4, icon: '📱', name: 'Play Store Gift Card', desc: '$5 Play Store credit', points: 5000 },
-            { id: 5, icon: '🎮', name: 'Mobile Legends 500 Diamonds', desc: '500 Diamonds for Mobile Legends', points: 10000 },
-            { id: 6, icon: '💰', name: 'Rs 1000', desc: 'Cash reward Rs 1000', points: 20000 },
-            { id: 7, icon: '💎', name: 'Free Fire 1000 Diamonds', desc: '1000 Diamonds for Free Fire', points: 12000 },
-            { id: 8, icon: '🎁', name: 'Mystery Box', desc: 'Random reward surprise', points: 8000 }
-        ];
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+    function handleYTTask(taskId, url, amount) {
+        const btn = document.getElementById('btn-' + taskId.split('-')[1]);
+        
+        if (btn.innerText === "Claim Points") {
+            // Give Points
+            points += amount;
+            localStorage.setItem('pasal_points', points);
+            
+            // Save Cooldown Timestamp
+            const completionTime = Date.now();
+            localStorage.setItem('time-' + taskId, completionTime);
+            
+            checkCooldowns();
+            updatePointsDisplay();
+        } else {
+            // Open Link & Prep Claim
+            window.open(url, '_blank');
+            btn.innerText = "Claim Points";
+            btn.classList.add('claim-ready');
         }
+    }
 
-        async function loadUserData() {
-            if (!currentUser) return;
+    function checkCooldowns() {
+        const tasks = ['task-sub', 'task-v1', 'task-v2'];
+        const now = Date.now();
 
-            try {
-                const userDocRef = doc(db, 'users', currentUser.uid);
+        tasks.forEach(taskId => {
+            const lastDone = localStorage.getItem('time-' + taskId);
+            const btn = document.getElementById('btn-' + taskId.split('-')[1]);
+            const timerText = document.getElementById('timer-' + taskId.split('-')[1]);
+
+            if (lastDone) {
+                const timePassed = now - parseInt(lastDone);
                 
-                // Set up real-time listener
-                if (unsubscribe) unsubscribe();
-                
-                unsubscribe = onSnapshot(userDocRef, async (docSnap) => {
-                    if (docSnap.exists()) {
-                        // Load data from Firestore
-                        const firestoreData = docSnap.data();
-                        
-                        // Preserve the structure and ensure all fields exist
-                        userData = {
-                            points: firestoreData.points || 0,
-                            history: firestoreData.history || [],
-                            activities: firestoreData.activities || [],
-                            streak: firestoreData.streak || 0,
-                            lastLogin: firestoreData.lastLogin || new Date().toISOString(),
-                            level: firestoreData.level || 1,
-                            email: firestoreData.email || currentUser.email
-                        };
-                        
-                        showSyncIndicator();
-                        
-                        const needsUpdate = needsStreakUpdate();
-                        if (needsUpdate) {
-                            checkStreak();
-                            // Update streak in Firestore without affecting other fields
-                            await updateDoc(userDocRef, {
-                                streak: userData.streak,
-                                lastLogin: userData.lastLogin
-                            });
-                        }
-                        
-                        updateUI();
-                        loadEarnActivities();
-                    } else {
-                        // Create new user with welcome bonus
-                        console.log("Creating user document (first time only)");
-                        const initialData = {
-                            points: 500,
-                            history: [{
-                                id: Date.now(),
-                                type: 'earned',
-                                title: 'Welcome Bonus',
-                                points: 500,
-                                date: new Date().toISOString()
-                            }],
-                            activities: [],
-                            streak: 1,
-                            lastLogin: new Date().toISOString(),
-                            level: 1,
-                            email: currentUser.email,
-                            createdAt: serverTimestamp()
-                        };
-                        
-                        await setDoc(userDocRef, initialData, { merge: true });
-                        // The onSnapshot will fire again with the new data
-                    }
-                }, (error) => {
-                    console.error('Snapshot error:', error);
-                    showToast('Error syncing data', 'error');
-                });
-                
-            } catch (error) {
-                console.error('Load error:', error);
-                showToast('Error loading data', 'error');
-            }
-        }
-
-        function needsStreakUpdate() {
-            if (!userData.lastLogin) return false;
-            const lastLogin = new Date(userData.lastLogin);
-            const today = new Date();
-            
-            // Set both to start of day for accurate comparison
-            lastLogin.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            
-            const diffDays = Math.floor((today - lastLogin) / (1000 * 60 * 60 * 24));
-            return diffDays >= 1;
-        }
-
-        function checkStreak() {
-            if (!userData.lastLogin) {
-                userData.streak = 1;
-                userData.lastLogin = new Date().toISOString();
-                return;
-            }
-            
-            const lastLogin = new Date(userData.lastLogin);
-            const today = new Date();
-            
-            // Compare dates at start of day
-            lastLogin.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            
-            const diffDays = Math.floor((today - lastLogin) / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 1) {
-                userData.streak = (userData.streak || 0) + 1;
-            } else if (diffDays > 1) {
-                userData.streak = 1;
-            }
-            // If diffDays === 0, don't change streak (same day)
-            
-            userData.lastLogin = new Date().toISOString();
-        }
-
-        async function saveUserData() {
-            if (!currentUser) return;
-            
-            try {
-                showSyncIndicator();
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                
-                // Ensure we're not saving undefined/null values
-                const dataToSave = {
-                    points: userData.points || 0,
-                    history: userData.history || [],
-                    activities: userData.activities || [],
-                    level: userData.level || 1,
-                    streak: userData.streak || 0,
-                    lastLogin: userData.lastLogin || new Date().toISOString(),
-                    updatedAt: serverTimestamp()
-                };
-                
-                await updateDoc(userDocRef, dataToSave);
-            } catch (error) {
-                console.error('Save error:', error);
-                showToast('Error saving data', 'error');
-            }
-        }
-
-        function showSyncIndicator() {
-            const indicator = document.getElementById('syncIndicator');
-            if (indicator) {
-                indicator.style.display = 'inline-block';
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 2000);
-            }
-        }
-
-        function updateUI() {
-            console.log('Updating UI with points:', userData.points);
-            document.getElementById('navPoints').textContent = userData.points || 0;
-            document.getElementById('totalPoints').textContent = userData.points || 0;
-            document.getElementById('totalRedeemed').textContent = (userData.history || []).filter(h => h.type === 'spent').length;
-            document.getElementById('currentStreak').textContent = userData.streak || 0;
-            
-            const level = Math.floor((userData.points || 0) / 1000) + 1;
-            userData.level = level;
-            document.getElementById('userLevel').textContent = level;
-            
-            const progress = ((userData.points || 0) % 1000) / 10;
-            document.getElementById('levelProgress').style.width = progress + '%';
-        }
-
-        function loadEarnActivities() {
-            const grid = document.getElementById('earnGrid');
-            const now = Date.now();
-            
-            grid.innerHTML = earnActivities.map(activity => {
-                // Special handling for share activity
-                if (activity.isShare) {
-                    return `
-                        <div class="earn-card">
-                            <div class="earn-header">
-                                <div class="earn-icon">${activity.icon}</div>
-                                <div class="earn-title">${activity.title}</div>
-                            </div>
-                            <div class="earn-description">${activity.desc}</div>
-                            <div class="earn-footer">
-                                <div class="earn-points">Share & Earn</div>
-                                <button class="btn btn-primary" data-share="true">Get Link</button>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                const userActivity = (userData.activities || []).find(a => a.id === activity.id);
-                const canClaim = !userActivity || (now - userActivity.lastClaimed) >= activity.cooldown;
-                const timeLeft = userActivity && !canClaim ? activity.cooldown - (now - userActivity.lastClaimed) : 0;
-                
-                return `
-                    <div class="earn-card">
-                        ${activity.badge ? `<div class="earn-badge">${activity.badge}</div>` : ''}
-                        <div class="earn-header">
-                            <div class="earn-icon">${activity.icon}</div>
-                            <div class="earn-title">${activity.title}</div>
-                        </div>
-                        <div class="earn-description">${activity.desc}</div>
-                        <div class="earn-footer">
-                            <div class="earn-points">+${activity.points} pts</div>
-                            ${canClaim ? 
-                                `<button class="btn btn-primary" data-activity="${activity.id}">Complete</button>` :
-                                `<div class="timer-text">${formatTime(timeLeft)}</div>`
-                            }
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Handle regular activities
-            document.querySelectorAll('[data-activity]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const activityId = this.getAttribute('data-activity');
-                    claimActivity(activityId);
-                });
-            });
-
-            // Handle share button
-            document.querySelectorAll('[data-share]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.getElementById('shareModal').classList.add('active');
-                });
-            });
-        }
-
-        function loadRewards() {
-            const grid = document.getElementById('rewardsGrid');
-            
-            grid.innerHTML = rewards.map(reward => `
-                <div class="reward-card">
-                    <div class="reward-image">${reward.icon}</div>
-                    <div class="reward-content">
-                        <div class="reward-name">${reward.name}</div>
-                        <div class="reward-description">${reward.desc}</div>
-                        <div class="reward-footer">
-                            <div class="reward-price">${reward.points} pts</div>
-                            <button class="btn ${(userData.points || 0) >= reward.points ? 'btn-primary' : 'btn-secondary'}" 
-                                    data-reward="${reward.id}" 
-                                    ${(userData.points || 0) < reward.points ? 'disabled' : ''}>
-                                Redeem
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            document.querySelectorAll('[data-reward]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    redeemReward(parseInt(this.getAttribute('data-reward')));
-                });
-            });
-        }
-
-        function loadHistory() {
-            const container = document.getElementById('historyContainer');
-            
-            if (!userData.history || userData.history.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📊</div>
-                        <h3>No Activity Yet</h3>
-                        <p>Start earning points to see your history</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = userData.history.map(item => `
-                <div class="history-item">
-                    <div class="history-left">
-                        <div class="history-icon">${item.type === 'earned' ? '⬆️' : '⬇️'}</div>
-                        <div class="history-details">
-                            <h3>${item.title}</h3>
-                            <div class="history-date">${new Date(item.date).toLocaleDateString()}</div>
-                        </div>
-                    </div>
-                    <div class="history-points ${item.type}">
-                        ${item.type === 'earned' ? '+' : '-'}${item.points}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function claimActivity(activityId) {
-            const activity = earnActivities.find(a => a.id === activityId);
-            if (!activity) return;
-
-            try {
-                if (activity.link) {
-                    window.open(activity.link, '_blank');
-                }
-
-                // Initialize arrays if they don't exist
-                if (!userData.activities) userData.activities = [];
-                if (!userData.history) userData.history = [];
-
-                userData.points = (userData.points || 0) + activity.points;
-                
-                const existing = userData.activities.find(a => a.id === activityId);
-                if (existing) {
-                    existing.lastClaimed = Date.now();
+                if (timePassed < COOLDOWN_TIME) {
+                    // Still on cooldown
+                    btn.disabled = true;
+                    btn.innerText = "Completed";
+                    btn.classList.remove('claim-ready');
+                    timerText.style.display = 'block';
+                    
+                    // Calculate remaining time
+                    const remaining = COOLDOWN_TIME - timePassed;
+                    const hours = Math.floor(remaining / (1000 * 60 * 60));
+                    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                    timerText.innerText = `Available in: ${hours}h ${mins}m`;
                 } else {
-                    userData.activities.push({ id: activityId, lastClaimed: Date.now() });
-                }
-
-                userData.history.unshift({
-                    id: Date.now(),
-                    type: 'earned',
-                    title: activity.title,
-                    points: activity.points,
-                    date: new Date().toISOString()
-                });
-
-                // Keep history to last 50 items
-                if (userData.history.length > 50) {
-                    userData.history = userData.history.slice(0, 50);
-                }
-
-                await saveUserData();
-                showToast(`Earned ${activity.points} points!`, 'success');
-            } catch (error) {
-                console.error('Error claiming activity:', error);
-                showToast('Error claiming reward. Please try again.', 'error');
-            }
-        }
-
-        async function redeemReward(rewardId) {
-            const reward = rewards.find(r => r.id === rewardId);
-            if (!reward || (userData.points || 0) < reward.points) {
-                showToast('Not enough points!', 'error');
-                return;
-            }
-
-            if (confirm(`Redeem ${reward.name} for ${reward.points} points?`)) {
-                try {
-                    if (!userData.history) userData.history = [];
-                    
-                    userData.points = (userData.points || 0) - reward.points;
-                    
-                    userData.history.unshift({
-                        id: Date.now(),
-                        type: 'spent',
-                        title: reward.name,
-                        points: reward.points,
-                        date: new Date().toISOString()
-                    });
-
-                    if (userData.history.length > 50) {
-                        userData.history = userData.history.slice(0, 50);
+                    // Cooldown finished
+                    btn.disabled = false;
+                    timerText.style.display = 'none';
+                    if (btn.innerText === "Completed") {
+                        btn.innerText = taskId === 'task-sub' ? "Subscribe" : "Watch Video";
                     }
-
-                    await saveUserData();
-                    loadRewards();
-                    showToast(`Successfully redeemed ${reward.name}!`, 'success');
-                } catch (error) {
-                    console.error('Error redeeming reward:', error);
-                    showToast('Error redeeming reward. Please try again.', 'error');
                 }
             }
-        }
-
-        function formatTime(ms) {
-            const hours = Math.floor(ms / (1000 * 60 * 60));
-            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-            
-            if (hours >= 24) {
-                const days = Math.floor(hours / 24);
-                return `${days}d ${hours % 24}h`;
-            }
-            return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-        }
-
-        function showMessage(id, text, type) {
-            const msg = document.getElementById(id);
-            msg.textContent = text;
-            msg.className = `message ${type}`;
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
-        }
-
-        function showToast(text, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = text;
-            toast.className = `toast ${type} show`;
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Navigation
-        document.getElementById('navDashboard')?.addEventListener('click', () => showPage('dashboard'));
-        document.getElementById('navEarn')?.addEventListener('click', () => {
-            showPage('earn');
-            loadEarnActivities();
         });
-        document.getElementById('navRedeem')?.addEventListener('click', () => {
-            showPage('redeem');
-            loadRewards();
-        });
-        document.getElementById('navHistory')?.addEventListener('click', () => {
-            showPage('history');
-            loadHistory();
-        });
+    }
 
-        // Auth
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            document.getElementById('loginModal').classList.add('active');
-        });
+    // Run on load and every minute
+    updatePointsDisplay();
+    checkCooldowns();
+    setInterval(checkCooldowns, 60000); 
 
-        document.getElementById('closeLogin').addEventListener('click', () => {
-            document.getElementById('loginModal').classList.remove('active');
-        });
+</script>
 
-        document.getElementById('closeSignup').addEventListener('click', () => {
-            document.getElementById('signupModal').classList.remove('active');
-        });
-
-        document.getElementById('showSignup').addEventListener('click', () => {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('signupModal').classList.add('active');
-        });
-
-        document.getElementById('showLogin').addEventListener('click', () => {
-            document.getElementById('signupModal').classList.remove('active');
-            document.getElementById('loginModal').classList.add('active');
-        });
-
-        // Share Modal
-        document.getElementById('closeShare').addEventListener('click', () => {
-            document.getElementById('shareModal').classList.remove('active');
-        });
-
-        document.getElementById('copyLinkBtn').addEventListener('click', () => {
-            const linkInput = document.getElementById('shareLink');
-            linkInput.select();
-            linkInput.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(linkInput.value);
-            showToast('Link copied to clipboard!', 'success');
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await signInWithEmailAndPassword(auth, 
-                    document.getElementById('loginEmail').value, 
-                    document.getElementById('loginPassword').value);
-                showMessage('loginMessage', 'Login successful!', 'success');
-                setTimeout(() => document.getElementById('loginModal').classList.remove('active'), 1000);
-            } catch (error) {
-                showMessage('loginMessage', error.message, 'error');
-            }
-        });
-
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await createUserWithEmailAndPassword(auth,
-                    document.getElementById('signupEmail').value,
-                    document.getElementById('signupPassword').value);
-                showMessage('signupMessage', 'Account created!', 'success');
-                setTimeout(() => document.getElementById('signupModal').classList.remove('active'), 1000);
-            } catch (error) {
-                showMessage('signupMessage', error.message, 'error');
-            }
-        });
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('navLinks').style.display = 'flex';
-                document.getElementById('pointsBadge').style.display = 'block';
-                document.getElementById('authSection').innerHTML = `
-                    <div class="user-info">
-                        <div class="user-avatar">${user.email[0].toUpperCase()}</div>
-                        <button class="btn btn-secondary" id="logoutBtn">Sign Out</button>
-                    </div>
-                `;
-                
-                document.getElementById('logoutBtn').addEventListener('click', async () => {
-                    if (unsubscribe) unsubscribe();
-                    await signOut(auth);
-                });
-                
-                document.getElementById('welcomeTitle').textContent = `Welcome back, ${user.email.split('@')[0]}!`;
-                document.getElementById('welcomeText').textContent = 'Continue earning and redeeming rewards';
-                document.getElementById('dashboardContent').style.display = 'block';
-                
-                await loadUserData();
-            } else {
-                if (unsubscribe) unsubscribe();
-                currentUser = null;
-                document.getElementById('navLinks').style.display = 'none';
-                document.getElementById('pointsBadge').style.display = 'none';
-                document.getElementById('authSection').innerHTML = '<button class="btn btn-primary" id="loginBtn">Sign In</button>';
-                document.getElementById('loginBtn').addEventListener('click', () => {
-                    document.getElementById('loginModal').classList.add('active');
-                });
-                document.getElementById('dashboardContent').style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
