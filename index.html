@@ -155,8 +155,11 @@
 <script>
     const QUESTS = [
         { id: 'sub', title: 'Subscribe to Channel', points: 200, link: 'https://www.youtube.com/@AnimatedSheikh' },
-        { id: 'v1', title: 'Watch & Like Video 1', points: 100, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
-        { id: 'v2', title: 'Watch Full Video 2', points: 100, link: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q' },
+        { id: 'v1', title: 'Watch Full video', points: 100, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
+        { id: 'v2', title: 'Watch Full video', points: 100, link: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q' },
+        { id: 'v3', title: 'like video', points: 100, link: 'https://www.youtube.com/shorts/VHvKMKgbpuM' }, // Placeholder link
+        { id: 'v4', title: 'like Video', points: 100, link: 'https://www.youtube.com/shorts/ytAOSALIHeE' }, // Placeholder link
+        { id: 'v5', title: 'like Video', points: 100, link: 'https://www.youtube.com/shorts/ZHSeV5A74QY' }, // Placeholder link
     ];
 
     const REWARDS = [
@@ -196,7 +199,6 @@
             let btnStyle = "";
             let isDisabled = "";
 
-            // CRITICAL FIX: Determine state before HTML is even added to page
             if (lastDone && (now - lastDone < COOLDOWN_TIME)) {
                 btnText = "COMPLETED";
                 isDisabled = "disabled";
