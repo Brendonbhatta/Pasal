@@ -43,6 +43,36 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text; letter-spacing: -0.5px;
         }
+
+        #user-greeting { font-weight: 600; color: var(--accent-light); font-size: 0.9rem; }
+
+        /* Welcome Modal */
+        #name-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.98);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: var(--card-bg); padding: 40px; border-radius: 24px;
+            border: 1px solid var(--accent); text-align: center;
+            max-width: 400px; width: 90%; box-shadow: 0 0 50px rgba(124, 58, 237, 0.3);
+        }
+        .modal-content input {
+            width: 100%; padding: 15px; margin: 25px 0;
+            background: #0f0f1e; border: 1px solid var(--accent);
+            color: white; border-radius: 12px; outline: none; font-family: 'Poppins';
+        }
+
+        /* Leaderboard Table Styles */
+        .leaderboard-card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
+            border: 1px solid rgba(124, 58, 237, 0.2); overflow: hidden;
+        }
+        .lb-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .lb-table th { color: var(--text-sub); font-size: 0.7rem; text-align: left; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .lb-table td { padding: 12px 10px; font-size: 0.9rem; }
+        .lb-row-me { background: rgba(124, 58, 237, 0.15); border-radius: 10px; }
         
         .dashboard { 
             max-width: 1200px; margin: 40px auto; padding: 0 25px; 
@@ -65,12 +95,8 @@
             background-clip: text; margin: 10px 0 15px 0;
         }
 
-        .daily-box, .referral-box {
-            margin-top: 25px; padding: 15px; border-radius: 15px;
-        }
-
+        .daily-box, .referral-box { margin-top: 25px; padding: 15px; border-radius: 15px; }
         .daily-box { background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); }
-
         .referral-box {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
             border: 1px solid rgba(236, 72, 153, 0.4);
@@ -84,12 +110,7 @@
 
         .daily-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
         .daily-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.6; }
-
-        .copy-btn { 
-            background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); 
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .copy-btn:active { transform: scale(0.98); }
+        .copy-btn { background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); text-transform: uppercase; letter-spacing: 1px; }
 
         h2 { 
             font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px;
@@ -101,7 +122,6 @@
         }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-
         .card { 
             background: var(--card-bg); border-radius: 16px; padding: 22px; 
             border: 1px solid rgba(124, 58, 237, 0.15); display: flex; 
@@ -127,7 +147,19 @@
 </head>
 <body>
 
-<nav><div class="logo">✦ Pasal Rewards</div></nav>
+<div id="name-modal" style="display: none;">
+    <div class="modal-content">
+        <h2 style="margin: 0;">Welcome! ✦</h2>
+        <p style="color: var(--text-sub); margin-top: 10px;">Enter your name to start earning rewards.</p>
+        <input type="text" id="username-input" placeholder="Enter your name..." maxlength="12">
+        <button class="action-btn" onclick="saveName()">START EARNING</button>
+    </div>
+</div>
+
+<nav>
+    <div class="logo">✦ Pasal Rewards</div>
+    <div id="user-greeting"></div>
+</nav>
 
 <div class="dashboard">
     <div class="stats-panel">
@@ -142,13 +174,21 @@
 
         <div class="referral-box">
             <p style="font-size: 0.8rem; margin: 0; font-weight: 800; color: #ec4899;">🔥 INVITE FRIENDS 🔥</p>
-            <p style="font-size: 0.7rem; color: var(--text-sub); margin: 8px 0;">Get 1,000 pts for every new user who joins!</p>
             <button class="copy-btn" onclick="copySecretCode()">Copy Code</button>
-            <p style="font-size: 0.6rem; margin-top: 8px; color: #ec4899;">🔥 Tap to copy your unique code 🔥</p>
         </div>
     </div>
 
     <div class="content-panel">
+        <h2>Global Leaderboard</h2>
+        <div class="leaderboard-card">
+            <table class="lb-table">
+                <thead>
+                    <tr><th>RANK</th><th>PLAYER</th><th style="text-align:right">POINTS</th></tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+
         <h2>Active Quests</h2>
         <div class="grid" id="quest-container"></div>
 
@@ -158,8 +198,16 @@
 </div>
 
 <script>
-    // EDIT THIS TEXT: This is what gets copied to the user's clipboard
     const HIDDEN_REFERRAL_TEXT = "https://brendonbhatta.github.io/Pasal/";
+    
+    // Fake "Global" players for the leaderboard
+    const TOP_PLAYERS = [
+        { name: "SumanYT", points: 8500 },
+        { name: "Rohan_Pro", points: 6200 },
+        { name: "GamingKing", points: 4100 },
+        { name: "Nepal_Gamer", points: 2800 },
+        { name: "Lucky_07", points: 1500 }
+    ];
 
     const QUESTS = [
         { id: 'sub', title: 'Subscribe to Channel', points: 200, link: 'https://www.youtube.com/@AnimatedSheikh' },
@@ -181,6 +229,13 @@
     let points = parseInt(localStorage.getItem('pasal_points')) || 0;
 
     function init() {
+        const savedName = localStorage.getItem('pasal_user_name');
+        if (!savedName) {
+            document.getElementById('name-modal').style.display = 'flex';
+        } else {
+            document.getElementById('user-greeting').innerText = `Hi, ${savedName}`;
+        }
+
         renderQuests();
         renderRewards();
         updatePointsDisplay();
@@ -189,9 +244,57 @@
         setInterval(() => { checkCooldowns(); checkDailyStatus(); }, 5000);
     }
 
-    function copySecretCode() {
-        navigator.clipboard.writeText(HIDDEN_REFERRAL_TEXT);
-        alert("Referral code copied successfully! 🔥");
+    function saveName() {
+        const nameInput = document.getElementById('username-input').value.trim();
+        if (nameInput.length >= 2) {
+            localStorage.setItem('pasal_user_name', nameInput);
+            document.getElementById('user-greeting').innerText = `Hi, ${nameInput}`;
+            document.getElementById('name-modal').style.display = 'none';
+            renderLeaderboard();
+        } else {
+            alert("Enter at least 2 characters");
+        }
+    }
+
+    function renderLeaderboard() {
+        const tbody = document.getElementById('leaderboard-body');
+        const myName = localStorage.getItem('pasal_user_name') || "You";
+        
+        // Combine current user with fake players
+        let players = [...TOP_PLAYERS, { name: myName + " (You)", points: points }];
+        players.sort((a, b) => b.points - a.points);
+
+        tbody.innerHTML = players.slice(0, 6).map((p, i) => {
+            const isMe = p.name.includes("(You)");
+            return `
+                <tr class="${isMe ? 'lb-row-me' : ''}">
+                    <td style="font-weight:800; color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'var(--text-sub)'}">#${i+1}</td>
+                    <td style="font-weight:600">${p.name}</td>
+                    <td style="text-align:right; font-weight:700; color:var(--success)">${p.points.toLocaleString()}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function updatePointsDisplay() {
+        document.getElementById('total-points').innerText = points.toLocaleString();
+        renderLeaderboard();
+    }
+
+    function handleQuest(id, link, amount) {
+        if (localStorage.getItem('pending-' + id) === 'true') {
+            points += amount;
+            localStorage.setItem('pasal_points', points);
+            localStorage.setItem('time-' + id, Date.now());
+            localStorage.removeItem('pending-' + id);
+            updatePointsDisplay();
+            checkCooldowns();
+            alert("Points added!");
+        } else {
+            window.open(link, '_blank');
+            localStorage.setItem('pending-' + id, 'true');
+            renderQuests();
+        }
     }
 
     function renderQuests() {
@@ -229,28 +332,6 @@
         `).join('');
     }
 
-    function handleQuest(id, link, amount) {
-        const btn = document.getElementById('btn-' + id);
-        if (localStorage.getItem('pending-' + id) === 'true') {
-            points += amount;
-            localStorage.setItem('pasal_points', points);
-            localStorage.setItem('time-' + id, Date.now());
-            localStorage.removeItem('pending-' + id);
-            updatePointsDisplay();
-            checkCooldowns();
-            alert("Reward Claimed!");
-        } else {
-            window.open(link, '_blank');
-            localStorage.setItem('pending-' + id, 'true');
-            btn.innerText = "CLAIM POINTS";
-            btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-        }
-    }
-
-    function updatePointsDisplay() {
-        document.getElementById('total-points').innerText = points.toLocaleString();
-    }
-
     function checkDailyStatus() {
         const lastDaily = localStorage.getItem('pasal_last_daily');
         const btn = document.getElementById('daily-claim-btn');
@@ -258,10 +339,8 @@
         const now = Date.now();
         if (lastDaily && (now - lastDaily < COOLDOWN_TIME)) {
             const rem = COOLDOWN_TIME - (now - lastDaily);
-            const h = Math.floor(rem / 3600000);
-            const m = Math.floor((rem % 3600000) / 60000);
             btn.disabled = true; btn.innerText = "CLAIMED";
-            status.innerText = `Next gift in ${h}h ${m}m`;
+            status.innerText = `Next in ${Math.floor(rem / 3600000)}h ${Math.floor((rem % 3600000) / 60000)}m`;
         } else {
             btn.disabled = false; btn.innerText = "CLAIM 50 PTS"; status.innerText = "Available Now!";
         }
@@ -272,33 +351,31 @@
         localStorage.setItem('pasal_points', points);
         localStorage.setItem('pasal_last_daily', Date.now());
         updatePointsDisplay(); checkDailyStatus();
-        alert("Daily Reward Claimed! +50 Points");
     }
 
     function checkCooldowns() {
         const now = Date.now();
         QUESTS.forEach(q => {
             const lastDone = localStorage.getItem('time-' + q.id);
-            const isPending = localStorage.getItem('pending-' + q.id);
-            const btn = document.getElementById('btn-' + q.id);
             const timer = document.getElementById('timer-' + q.id);
-            if (!btn) return;
             if (lastDone && (now - lastDone < COOLDOWN_TIME)) {
-                btn.disabled = true; btn.innerText = "COMPLETED"; btn.style.background = "#2a2a3e";
                 timer.style.display = 'block';
                 const rem = COOLDOWN_TIME - (now - lastDone);
                 timer.innerText = `Reset in ${Math.floor(rem / 3600000)}h ${Math.floor((rem % 3600000) / 60000)}m`;
-            } else if (isPending === 'true') {
-                btn.innerText = "CLAIM POINTS"; btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
             }
         });
+    }
+
+    function copySecretCode() {
+        navigator.clipboard.writeText(HIDDEN_REFERRAL_TEXT);
+        alert("Referral link copied!");
     }
 
     function redeem(name, cost) {
         if (points >= cost) {
             points -= cost; localStorage.setItem('pasal_points', points);
             updatePointsDisplay(); alert(`Redeemed ${name}!`);
-        } else { alert(`Need ${(cost - points).toLocaleString()} more points!`); }
+        } else { alert(`Need ${(cost - points).toLocaleString()} more pts`); }
     }
 
     init();
