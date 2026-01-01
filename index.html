@@ -25,7 +25,30 @@
             color: var(--text-main); 
             margin: 0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
+        /* --- AUTH OVERLAY STYLES --- */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .auth-card {
+            background: var(--card-bg); padding: 40px; border-radius: 24px;
+            width: 90%; max-width: 400px; text-align: center;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .auth-card input {
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px;
+            border: 1px solid #333; background: #0f0f1e; color: white; outline: none;
+        }
+        .auth-card input:focus { border-color: var(--accent); }
+        .toggle-link { color: var(--accent-light); cursor: pointer; font-size: 0.9rem; margin-top: 15px; display: block; }
+
+        /* --- DASHBOARD STYLES --- */
+        #main-dashboard { display: none; } /* Hidden until login */
         
         nav { 
             background: rgba(26, 26, 46, 0.8);
@@ -65,31 +88,23 @@
             background-clip: text; margin: 10px 0 15px 0;
         }
 
-        .daily-box, .referral-box {
-            margin-top: 25px; padding: 15px; border-radius: 15px;
-        }
-
+        .daily-box, .referral-box { margin-top: 25px; padding: 15px; border-radius: 15px; }
         .daily-box { background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); }
-
         .referral-box {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
             border: 1px solid rgba(236, 72, 153, 0.4);
         }
 
-        .daily-btn, .copy-btn {
+        .daily-btn, .copy-btn, .auth-btn {
             color: white; border: none; padding: 12px; width: 100%;
             border-radius: 10px; font-weight: 700; cursor: pointer;
             transition: 0.3s; margin-top: 10px;
         }
 
+        .auth-btn { background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); }
         .daily-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
         .daily-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.6; }
-
-        .copy-btn { 
-            background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); 
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .copy-btn:active { transform: scale(0.98); }
+        .copy-btn { background: linear-gradient(135deg, #ec4899 0%, #7c3aed 100%); text-transform: uppercase; }
 
         h2 { 
             font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px;
@@ -101,7 +116,6 @@
         }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-
         .card { 
             background: var(--card-bg); border-radius: 16px; padding: 22px; 
             border: 1px solid rgba(124, 58, 237, 0.15); display: flex; 
@@ -123,44 +137,114 @@
 
         .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; }
         .cooldown-text { font-size: 0.75rem; color: var(--warning); margin-top: 10px; font-weight: 600; }
+        .user-badge { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 15px; }
+        .logout-link { font-size: 0.8rem; color: var(--danger); cursor: pointer; text-decoration: underline; margin-top: 20px; display: block; }
     </style>
 </head>
 <body>
 
-<nav><div class="logo">✦ Pasal Rewards</div></nav>
-
-<div class="dashboard">
-    <div class="stats-panel">
-        <p class="stat-label">YOUR BALANCE</p>
-        <div class="points-hero" id="total-points">0</div>
-        
-        <div class="daily-box">
-            <p class="stat-label" style="font-size: 0.65rem;">Daily Gift</p>
-            <p id="daily-status" style="font-size: 0.8rem; margin: 5px 0;">Available Now!</p>
-            <button class="daily-btn" id="daily-claim-btn" onclick="claimDaily()">CLAIM 50 PTS</button>
-        </div>
-
-        <div class="referral-box">
-            <p style="font-size: 0.8rem; margin: 0; font-weight: 800; color: #ec4899;">🔥 INVITE FRIENDS 🔥</p>
-            <p style="font-size: 0.7rem; color: var(--text-sub); margin: 8px 0;">Get 1,000 pts for every new user who joins!</p>
-            <button class="copy-btn" onclick="copySecretCode()">Copy Code</button>
-            <p style="font-size: 0.6rem; margin-top: 8px; color: #ec4899;">🔥 Tap to copy your unique code 🔥</p>
-        </div>
-    </div>
-
-    <div class="content-panel">
-        <h2>Active Quests</h2>
-        <div class="grid" id="quest-container"></div>
-
-        <h2>Redeem Rewards</h2>
-        <div class="grid" id="reward-container"></div>
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h2 id="auth-title">Welcome Back</h2>
+        <input type="email" id="email" placeholder="Email Address">
+        <input type="password" id="password" placeholder="Password">
+        <button class="auth-btn" id="auth-action-btn" onclick="handleAuth()">Login</button>
+        <span class="toggle-link" id="toggle-text" onclick="toggleAuthMode()">New to Pasal? Sign Up</span>
     </div>
 </div>
 
-<script>
-    // EDIT THIS TEXT: This is what gets copied to the user's clipboard
-    const HIDDEN_REFERRAL_TEXT = "https://brendonbhatta.github.io/Pasal/";
+<div id="main-dashboard">
+    <nav><div class="logo">✦ Pasal Rewards</div></nav>
 
+    <div class="dashboard">
+        <div class="stats-panel">
+            <div class="user-badge" id="user-display">Loading user...</div>
+            <p class="stat-label">YOUR BALANCE</p>
+            <div class="points-hero" id="total-points">0</div>
+            
+            <div class="daily-box">
+                <p class="stat-label" style="font-size: 0.65rem;">Daily Gift</p>
+                <p id="daily-status" style="font-size: 0.8rem; margin: 5px 0;">Available Now!</p>
+                <button class="daily-btn" id="daily-claim-btn" onclick="claimDaily()">CLAIM 50 PTS</button>
+            </div>
+
+            <div class="referral-box">
+                <p style="font-size: 0.8rem; margin: 0; font-weight: 800; color: #ec4899;">🔥 INVITE FRIENDS 🔥</p>
+                <p style="font-size: 0.7rem; color: var(--text-sub); margin: 8px 0;">Get 1,000 pts for every new user who joins!</p>
+                <button class="copy-btn" onclick="copySecretCode()">Copy Code</button>
+                <p style="font-size: 0.6rem; margin-top: 8px; color: #ec4899;">🔥 Tap to copy your unique code 🔥</p>
+            </div>
+
+            <span class="logout-link" onclick="handleLogout()">Logout Account</span>
+        </div>
+
+        <div class="content-panel">
+            <h2>Active Quests</h2>
+            <div class="grid" id="quest-container"></div>
+
+            <h2>Redeem Rewards</h2>
+            <div class="grid" id="reward-container"></div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6sK1W0vTxkuVGxlr5kyKkhEdfrxErXBc",
+        authDomain: "pasal-login.firebaseapp.com",
+        projectId: "pasal-login",
+        storageBucket: "pasal-login.firebasestorage.app",
+        messagingSenderId: "116655626018",
+        appId: "1:116655626018:web:a11398e05d147a044f777b",
+        measurementId: "G-LG0CPFJL90"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let isLoginMode = true;
+
+    // --- AUTH LOGIC ---
+    window.toggleAuthMode = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? "Welcome Back" : "Create Account";
+        document.getElementById('auth-action-btn').innerText = isLoginMode ? "Login" : "Sign Up";
+        document.getElementById('toggle-text').innerText = isLoginMode ? "New to Pasal? Sign Up" : "Already have an account? Login";
+    };
+
+    window.handleAuth = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if(!email || !password) return alert("Please fill all fields");
+
+        try {
+            if (isLoginMode) {
+                await signInWithEmailAndPassword(auth, email, password);
+            } else {
+                await createUserWithEmailAndPassword(auth, email, password);
+            }
+        } catch (e) { alert(e.message); }
+    };
+
+    window.handleLogout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('main-dashboard').style.display = 'block';
+            document.getElementById('user-display').innerText = `ID: ${user.email.split('@')[0]}`;
+            initDashboard();
+        } else {
+            document.getElementById('auth-overlay').style.display = 'flex';
+            document.getElementById('main-dashboard').style.display = 'none';
+        }
+    });
+
+    // --- DASHBOARD LOGIC ---
+    const HIDDEN_REFERRAL_TEXT = "https://brendonbhatta.github.io/Pasal/";
     const QUESTS = [
         { id: 'sub', title: 'Subscribe to Channel', points: 200, link: 'https://www.youtube.com/@AnimatedSheikh' },
         { id: 'v1', title: 'Watch Video 1', points: 100, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
@@ -169,7 +253,6 @@
         { id: 'v4', title: 'Watch Video 4', points: 100, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
         { id: 'v5', title: 'Watch Video 5', points: 100, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
     ];
-
     const REWARDS = [
         { name: '500 robux', cost: 3000 },
         { name: '1000 robux', cost: 6000 },
@@ -180,19 +263,18 @@
     const COOLDOWN_TIME = 24 * 60 * 60 * 1000;
     let points = parseInt(localStorage.getItem('pasal_points')) || 0;
 
-    function init() {
+    function initDashboard() {
         renderQuests();
         renderRewards();
         updatePointsDisplay();
         checkDailyStatus();
         checkCooldowns();
-        setInterval(() => { checkCooldowns(); checkDailyStatus(); }, 5000);
     }
 
-    function copySecretCode() {
+    window.copySecretCode = () => {
         navigator.clipboard.writeText(HIDDEN_REFERRAL_TEXT);
-        alert("Referral code copied successfully! 🔥");
-    }
+        alert("Referral link copied! 🔥");
+    };
 
     function renderQuests() {
         const container = document.getElementById('quest-container');
@@ -229,7 +311,7 @@
         `).join('');
     }
 
-    function handleQuest(id, link, amount) {
+    window.handleQuest = (id, link, amount) => {
         const btn = document.getElementById('btn-' + id);
         if (localStorage.getItem('pending-' + id) === 'true') {
             points += amount;
@@ -237,6 +319,7 @@
             localStorage.setItem('time-' + id, Date.now());
             localStorage.removeItem('pending-' + id);
             updatePointsDisplay();
+            renderQuests();
             checkCooldowns();
             alert("Reward Claimed!");
         } else {
@@ -249,6 +332,15 @@
 
     function updatePointsDisplay() {
         document.getElementById('total-points').innerText = points.toLocaleString();
+    }
+
+    window.claimDaily = () => {
+        points += 50;
+        localStorage.setItem('pasal_points', points);
+        localStorage.setItem('pasal_last_daily', Date.now());
+        updatePointsDisplay();
+        checkDailyStatus();
+        alert("Daily Reward Claimed! +50 Points");
     }
 
     function checkDailyStatus() {
@@ -267,41 +359,30 @@
         }
     }
 
-    function claimDaily() {
-        points += 50;
-        localStorage.setItem('pasal_points', points);
-        localStorage.setItem('pasal_last_daily', Date.now());
-        updatePointsDisplay(); checkDailyStatus();
-        alert("Daily Reward Claimed! +50 Points");
-    }
-
     function checkCooldowns() {
         const now = Date.now();
         QUESTS.forEach(q => {
             const lastDone = localStorage.getItem('time-' + q.id);
-            const isPending = localStorage.getItem('pending-' + q.id);
-            const btn = document.getElementById('btn-' + q.id);
             const timer = document.getElementById('timer-' + q.id);
-            if (!btn) return;
+            const btn = document.getElementById('btn-' + q.id);
             if (lastDone && (now - lastDone < COOLDOWN_TIME)) {
-                btn.disabled = true; btn.innerText = "COMPLETED"; btn.style.background = "#2a2a3e";
-                timer.style.display = 'block';
                 const rem = COOLDOWN_TIME - (now - lastDone);
-                timer.innerText = `Reset in ${Math.floor(rem / 3600000)}h ${Math.floor((rem % 3600000) / 60000)}m`;
-            } else if (isPending === 'true') {
-                btn.innerText = "CLAIM POINTS"; btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                if(timer) {
+                    timer.style.display = 'block';
+                    timer.innerText = `Reset in ${Math.floor(rem / 3600000)}h ${Math.floor((rem % 3600000) / 60000)}m`;
+                }
             }
         });
     }
 
-    function redeem(name, cost) {
+    window.redeem = (name, cost) => {
         if (points >= cost) {
             points -= cost; localStorage.setItem('pasal_points', points);
             updatePointsDisplay(); alert(`Redeemed ${name}!`);
         } else { alert(`Need ${(cost - points).toLocaleString()} more points!`); }
     }
 
-    init();
+    setInterval(() => { if(auth.currentUser) { checkCooldowns(); checkDailyStatus(); } }, 10000);
 </script>
 
 </body>
