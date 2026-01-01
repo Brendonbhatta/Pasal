@@ -35,169 +35,89 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid rgba(124, 58, 237, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
         .logo { 
-            font-weight: 800; 
-            font-size: 1.6rem; 
+            font-weight: 800; font-size: 1.6rem; 
             background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: -0.5px;
         }
         
         .dashboard { 
-            max-width: 1200px; 
-            margin: 40px auto; 
-            padding: 0 25px; 
-            display: grid; 
-            grid-template-columns: 320px 1fr; 
-            gap: 30px; 
+            max-width: 1200px; margin: 40px auto; padding: 0 25px; 
+            display: grid; grid-template-columns: 320px 1fr; gap: 30px; 
         }
         @media (max-width: 850px) { .dashboard { grid-template-columns: 1fr; } }
 
         .stats-panel { 
             background: linear-gradient(135deg, var(--card-bg) 0%, #252540 100%);
-            padding: 35px 25px; 
-            border-radius: 20px; 
+            padding: 35px 25px; border-radius: 20px; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             border: 1px solid rgba(124, 58, 237, 0.2);
-            height: fit-content; 
-            text-align: center; 
-            position: sticky; 
-            top: 100px;
+            height: fit-content; text-align: center; position: sticky; top: 100px;
         }
-        .stats-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #7c3aed, #ec4899, #7c3aed);
-            border-radius: 20px 20px 0 0;
-        }
+
         .points-hero { 
-            font-size: 3rem; 
-            font-weight: 800; 
+            font-size: 3rem; font-weight: 800; 
             background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 10px 0 15px 0;
-            text-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin: 10px 0 15px 0;
         }
+
+        .daily-box {
+            margin-top: 25px; padding: 15px; background: rgba(124, 58, 237, 0.1);
+            border-radius: 15px; border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+        .daily-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; border: none; padding: 10px; width: 100%;
+            border-radius: 10px; font-weight: 700; cursor: pointer;
+            transition: 0.3s; margin-top: 10px;
+        }
+        .daily-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.6; }
 
         h2 { 
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px;
+            color: var(--text-main); display: flex; align-items: center; gap: 12px;
         }
         h2::before {
-            content: '';
-            width: 5px;
-            height: 30px;
-            background: linear-gradient(180deg, #7c3aed, #ec4899);
-            border-radius: 10px;
+            content: ''; width: 5px; height: 30px;
+            background: linear-gradient(180deg, #7c3aed, #ec4899); border-radius: 10px;
         }
         
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
-            gap: 20px; 
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
 
         .card { 
-            background: var(--card-bg);
-            border-radius: 16px; 
-            padding: 22px; 
-            border: 1px solid rgba(124, 58, 237, 0.15);
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .card:hover { 
-            border-color: #7c3aed;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.3);
+            background: var(--card-bg); border-radius: 16px; padding: 22px; 
+            border: 1px solid rgba(124, 58, 237, 0.15); display: flex; 
+            flex-direction: column; justify-content: space-between; transition: all 0.3s ease;
         }
         
         .reward-tag { 
-            color: var(--success);
-            font-weight: 700; 
-            font-size: 0.9rem; 
-            margin-bottom: 8px; 
-            display: inline-block;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; 
+            display: inline-block; background: rgba(16, 185, 129, 0.1);
+            padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);
         }
         
         .action-btn { 
             background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 25px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            width: 100%;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
+            color: white; border: none; padding: 12px 20px; border-radius: 25px; 
+            font-weight: 700; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;
         }
-        .action-btn:disabled { 
-            background: #2a2a3e;
-            color: #666;
-            cursor: not-allowed;
-        }
+        .action-btn:disabled { background: #2a2a3e !important; color: #666 !important; cursor: not-allowed; }
 
-        /* Danger Zone Styles */
         .danger-zone {
-            margin-top: 60px;
-            padding: 30px;
-            border: 2px dashed rgba(239, 68, 68, 0.3);
-            border-radius: 20px;
-            text-align: center;
-            background: rgba(239, 68, 68, 0.05);
-        }
-        .danger-title {
-            color: var(--danger);
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: block;
+            margin-top: 60px; padding: 30px; border: 2px dashed rgba(239, 68, 68, 0.3);
+            border-radius: 20px; text-align: center; background: rgba(239, 68, 68, 0.05);
         }
         .reset-btn {
-            background: transparent;
-            color: var(--danger);
-            border: 2px solid var(--danger);
-            padding: 10px 25px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            background: transparent; color: var(--danger); border: 2px solid var(--danger);
+            padding: 10px 25px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
-        .reset-btn:hover {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-        }
+        .reset-btn:hover { background: var(--danger); color: white; }
 
         .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; }
-        .stat-sublabel { font-size: 0.8rem; color: var(--text-sub); margin-top: 10px; }
         .cooldown-text { font-size: 0.75rem; color: var(--warning); margin-top: 10px; font-weight: 600; }
     </style>
 </head>
@@ -209,7 +129,12 @@
     <div class="stats-panel">
         <p class="stat-label">YOUR BALANCE</p>
         <div class="points-hero" id="total-points">0</div>
-        <p class="stat-sublabel">Complete quests and unlock amazing rewards!</p>
+        
+        <div class="daily-box">
+            <p class="stat-label" style="font-size: 0.65rem;">Daily Gift</p>
+            <p id="daily-status" style="font-size: 0.8rem; margin: 5px 0;">Available Now!</p>
+            <button class="daily-btn" id="daily-claim-btn" onclick="claimDaily()">CLAIM 50 PTS</button>
+        </div>
     </div>
 
     <div class="content-panel">
@@ -220,9 +145,9 @@
         <div class="grid" id="reward-container"></div>
 
         <div class="danger-zone">
-            <span class="danger-title">⚠️ DANGER ZONE</span>
-            <p style="color: var(--text-sub); font-size: 0.9rem;">This will permanently delete your points and reset all mission timers.</p>
-            <button class="reset-btn" onclick="resetAllData()">RESET ALL PROGRESS</button>
+            <span style="color: var(--danger); font-weight: 700;">⚠️ DANGER ZONE</span>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">Delete all progress permanently.</p>
+            <button class="reset-btn" onclick="resetAllData()">RESET EVERYTHING</button>
         </div>
     </div>
 </div>
@@ -237,35 +162,61 @@
     const REWARDS = [
         { name: '500 robux', cost: 3000 },
         { name: '1000 robux', cost: 6000 },
-        { name: '10000 robux', cost: 10000 },
         { name: 'Freefire 1000 diamond', cost: 2500},
-        { name: 'Freefire 2000 diamond', cost: 5000 },
         { name: 'Mobile legends 10000 diamonds', cost: 8000 },
     ];
 
     const COOLDOWN_TIME = 24 * 60 * 60 * 1000;
+    const DAILY_REWARD_PTS = 50;
+
     let points = parseInt(localStorage.getItem('pasal_points')) || 0;
 
     function init() {
         renderQuests();
         renderRewards();
         updatePointsDisplay();
-        checkCooldowns();
-        setInterval(checkCooldowns, 60000);
+        checkDailyStatus();
+        checkCooldowns(); 
+        
+        setInterval(() => {
+            checkCooldowns();
+            checkDailyStatus();
+        }, 5000); 
     }
 
     function renderQuests() {
         const container = document.getElementById('quest-container');
-        container.innerHTML = QUESTS.map(q => `
-            <div class="card" id="card-${q.id}">
-                <div>
-                    <span class="reward-tag">+${q.points} Points</span>
-                    <h4>${q.title}</h4>
+        const now = Date.now();
+
+        container.innerHTML = QUESTS.map(q => {
+            const lastDone = localStorage.getItem('time-' + q.id);
+            const isPending = localStorage.getItem('pending-' + q.id);
+            
+            let btnText = "Start";
+            let btnStyle = "";
+            let isDisabled = "";
+
+            // CRITICAL FIX: Determine state before HTML is even added to page
+            if (lastDone && (now - lastDone < COOLDOWN_TIME)) {
+                btnText = "COMPLETED";
+                isDisabled = "disabled";
+                btnStyle = "background: #2a2a3e";
+            } else if (isPending === 'true') {
+                btnText = "CLAIM POINTS";
+                btnStyle = "background: linear-gradient(135deg, #10b981 0%, #059669 100%)";
+            }
+
+            return `
+                <div class="card" id="card-${q.id}">
+                    <div>
+                        <span class="reward-tag">+${q.points} Points</span>
+                        <h4 style="margin: 5px 0;">${q.title}</h4>
+                    </div>
+                    <button class="action-btn" id="btn-${q.id}" ${isDisabled} style="${btnStyle}" onclick="handleQuest('${q.id}', '${q.link}', ${q.points})">${btnText}</button>
+                    <div class="cooldown-text" id="timer-${q.id}" style="display:none"></div>
                 </div>
-                <button class="action-btn" id="btn-${q.id}" onclick="handleQuest('${q.id}', '${q.link}', ${q.points})">Start</button>
-                <div class="cooldown-text" id="timer-${q.id}" style="display:none"></div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function renderRewards() {
@@ -273,8 +224,8 @@
         container.innerHTML = REWARDS.map(r => `
             <div class="card">
                 <div>
-                    <h4>${r.name}</h4>
-                    <p style="font-weight:700; color:var(--accent-light)">${r.cost.toLocaleString()} pts</p>
+                    <h4 style="margin:0;">${r.name}</h4>
+                    <p style="font-weight:700; color:var(--accent-light); margin: 5px 0;">${r.cost.toLocaleString()} pts</p>
                 </div>
                 <button class="action-btn" onclick="redeem('${r.name}', ${r.cost})">Redeem</button>
             </div>
@@ -287,14 +238,21 @@
 
     function handleQuest(id, link, amount) {
         const btn = document.getElementById('btn-' + id);
-        if (btn.innerText === "CLAIM POINTS") {
+        const isPending = localStorage.getItem('pending-' + id);
+        
+        if (isPending === 'true' || btn.innerText === "CLAIM POINTS") {
             points += amount;
             localStorage.setItem('pasal_points', points);
             localStorage.setItem('time-' + id, Date.now());
+            localStorage.removeItem('pending-' + id);
+            
             updatePointsDisplay();
             checkCooldowns();
+            alert("Reward Claimed!");
         } else {
             window.open(link, '_blank');
+            localStorage.setItem('pending-' + id, 'true'); 
+            
             btn.innerText = "CLAIM POINTS";
             btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
         }
@@ -304,8 +262,11 @@
         const now = Date.now();
         QUESTS.forEach(q => {
             const lastDone = localStorage.getItem('time-' + q.id);
+            const isPending = localStorage.getItem('pending-' + q.id);
             const btn = document.getElementById('btn-' + q.id);
             const timer = document.getElementById('timer-' + q.id);
+
+            if (!btn) return;
 
             if (lastDone && (now - lastDone < COOLDOWN_TIME)) {
                 const remaining = COOLDOWN_TIME - (now - lastDone);
@@ -317,30 +278,57 @@
                 btn.style.background = "#2a2a3e";
                 timer.style.display = 'block';
                 timer.innerText = `Reset in ${hrs}h ${mins}m`;
+            } else if (isPending === 'true') {
+                btn.disabled = false;
+                btn.innerText = "CLAIM POINTS";
+                btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                timer.style.display = 'none';
             } else {
                 btn.disabled = false;
+                btn.innerText = "START";
+                btn.style.background = "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)";
                 timer.style.display = 'none';
-                if (btn.innerText === "COMPLETED") {
-                    btn.innerText = "START";
-                    btn.style.background = "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)";
-                }
             }
         });
     }
 
-    // RESET DATA FUNCTION
+    function checkDailyStatus() {
+        const lastDaily = localStorage.getItem('pasal_last_daily');
+        const btn = document.getElementById('daily-claim-btn');
+        const status = document.getElementById('daily-status');
+        const now = Date.now();
+
+        if (lastDaily && (now - lastDaily < COOLDOWN_TIME)) {
+            const remaining = COOLDOWN_TIME - (now - lastDaily);
+            const hrs = Math.floor(remaining / 3600000);
+            const mins = Math.floor((remaining % 3600000) / 60000);
+            btn.disabled = true;
+            btn.innerText = "CLAIMED";
+            status.innerText = `Next gift in ${hrs}h ${mins}m`;
+        } else {
+            btn.disabled = false;
+            btn.innerText = "CLAIM 50 PTS";
+            status.innerText = "Available Now!";
+        }
+    }
+
+    function claimDaily() {
+        points += DAILY_REWARD_PTS;
+        localStorage.setItem('pasal_points', points);
+        localStorage.setItem('pasal_last_daily', Date.now());
+        updatePointsDisplay();
+        checkDailyStatus();
+        alert("Daily Reward Claimed! +50 Points");
+    }
+
     function resetAllData() {
-        const confirmFirst = confirm("ARE YOU SURE? This will delete all your earned points!");
-        if (confirmFirst) {
-            const confirmSecond = confirm("LAST WARNING: This cannot be undone. All progress will be lost. Proceed?");
-            if (confirmSecond) {
-                localStorage.clear();
-                points = 0;
-                updatePointsDisplay();
-                renderQuests();
-                checkCooldowns();
-                alert("All data has been wiped. Starting from zero.");
-            }
+        if (confirm("Delete everything? This cannot be undone.")) {
+            localStorage.clear();
+            points = 0;
+            updatePointsDisplay();
+            renderQuests();
+            checkDailyStatus();
+            alert("Data Wiped.");
         }
     }
 
@@ -349,9 +337,9 @@
             points -= cost;
             localStorage.setItem('pasal_points', points);
             updatePointsDisplay();
-            alert(`Success! Redeemed ${name}.`);
+            alert(`Redeemed ${name}!`);
         } else {
-            alert(`You need ${(cost - points).toLocaleString()} more points!`);
+            alert(`Need ${(cost - points).toLocaleString()} more points!`);
         }
     }
 
