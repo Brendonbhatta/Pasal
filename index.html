@@ -500,6 +500,42 @@
             font-weight: 600;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 3000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            border-left: 4px solid #107c10;
+        }
+
+        .toast.error {
+            border-left: 4px solid #d13438;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         .progress-bar {
             background: #e1dfdd;
             height: 8px;
@@ -514,20 +550,40 @@
             transition: width 0.3s;
         }
 
-        .streak-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
+        .loading-indicator {
+            text-align: center;
+            padding: 40px;
+            color: #605e5c;
         }
 
-        .streak-icon {
-            font-size: 1.5em;
+        .spinner {
+            border: 3px solid #e1dfdd;
+            border-top: 3px solid #0078d4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .streak-text {
-            color: #ff8c00;
-            font-weight: 600;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sync-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #107c10;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
     </style>
 </head>
@@ -545,6 +601,7 @@
                 <div id="pointsBadge" style="display: none;">
                     <div class="points-badge">
                         ⚡ <span id="navPoints">0</span> points
+                        <span class="sync-indicator" id="syncIndicator" style="display:none;"></span>
                     </div>
                 </div>
                 <div id="authSection">
@@ -650,7 +707,7 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="signupPassword" required>
+                    <input type="password" id="signupPassword" required minlength="6">
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
             </form>
@@ -660,9 +717,13 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const app = initializeApp({
             apiKey: "AIzaSyA6sK1W0vTxkuVGxlr5kyKkhEdfrxErXBc",
@@ -675,9 +736,11 @@
         });
 
         const auth = getAuth(app);
+        const db = getFirestore(app);
         setPersistence(auth, browserLocalPersistence);
 
         let currentUser = null;
+        let unsubscribe = null;
         let userData = {
             points: 0,
             history: [],
@@ -718,71 +781,161 @@
             if (!currentUser) return;
 
             try {
-                const result = await window.storage.get(`user-data-${currentUser.uid}`);
+                const userDocRef = doc(db, 'users', currentUser.uid);
                 
-                if (result) {
-                    userData = JSON.parse(result.value);
-                    checkStreak();
-                } else {
-                    userData = {
-                        points: 500,
-                        history: [{
-                            id: Date.now(),
-                            type: 'earned',
-                            title: 'Welcome Bonus',
+                // Set up real-time listener
+                if (unsubscribe) unsubscribe();
+                
+                unsubscribe = onSnapshot(userDocRef, async (docSnap) => {
+                    if (docSnap.exists()) {
+                        // Load data from Firestore
+                        const firestoreData = docSnap.data();
+                        
+                        // Preserve the structure and ensure all fields exist
+                        userData = {
+                            points: firestoreData.points || 0,
+                            history: firestoreData.history || [],
+                            activities: firestoreData.activities || [],
+                            streak: firestoreData.streak || 0,
+                            lastLogin: firestoreData.lastLogin || new Date().toISOString(),
+                            level: firestoreData.level || 1,
+                            email: firestoreData.email || currentUser.email
+                        };
+                        
+                        showSyncIndicator();
+                        
+                        const needsUpdate = needsStreakUpdate();
+                        if (needsUpdate) {
+                            checkStreak();
+                            // Update streak in Firestore without affecting other fields
+                            await updateDoc(userDocRef, {
+                                streak: userData.streak,
+                                lastLogin: userData.lastLogin
+                            });
+                        }
+                        
+                        updateUI();
+                        loadEarnActivities();
+                    } else {
+                        // Create new user with welcome bonus
+                        console.log("Creating user document (first time only)");
+                        const initialData = {
                             points: 500,
-                            date: new Date().toISOString()
-                        }],
-                        activities: [],
-                        streak: 1,
-                        lastLogin: new Date().toISOString(),
-                        level: 1
-                    };
-                    await saveUserData();
-                }
+                            history: [{
+                                id: Date.now(),
+                                type: 'earned',
+                                title: 'Welcome Bonus',
+                                points: 500,
+                                date: new Date().toISOString()
+                            }],
+                            activities: [],
+                            streak: 1,
+                            lastLogin: new Date().toISOString(),
+                            level: 1,
+                            email: currentUser.email,
+                            createdAt: serverTimestamp()
+                        };
+                        
+                        await setDoc(userDocRef, initialData, { merge: true });
+                        // The onSnapshot will fire again with the new data
+                    }
+                }, (error) => {
+                    console.error('Snapshot error:', error);
+                    showToast('Error syncing data', 'error');
+                });
                 
-                updateUI();
-                loadEarnActivities();
             } catch (error) {
                 console.error('Load error:', error);
+                showToast('Error loading data', 'error');
             }
         }
 
-        function checkStreak() {
+        function needsStreakUpdate() {
+            if (!userData.lastLogin) return false;
             const lastLogin = new Date(userData.lastLogin);
             const today = new Date();
+            
+            // Set both to start of day for accurate comparison
+            lastLogin.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            const diffDays = Math.floor((today - lastLogin) / (1000 * 60 * 60 * 24));
+            return diffDays >= 1;
+        }
+
+        function checkStreak() {
+            if (!userData.lastLogin) {
+                userData.streak = 1;
+                userData.lastLogin = new Date().toISOString();
+                return;
+            }
+            
+            const lastLogin = new Date(userData.lastLogin);
+            const today = new Date();
+            
+            // Compare dates at start of day
+            lastLogin.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
             const diffDays = Math.floor((today - lastLogin) / (1000 * 60 * 60 * 24));
             
             if (diffDays === 1) {
-                userData.streak += 1;
+                userData.streak = (userData.streak || 0) + 1;
             } else if (diffDays > 1) {
                 userData.streak = 1;
             }
+            // If diffDays === 0, don't change streak (same day)
             
-            userData.lastLogin = today.toISOString();
+            userData.lastLogin = new Date().toISOString();
         }
 
         async function saveUserData() {
             if (!currentUser) return;
             
             try {
-                await window.storage.set(`user-data-${currentUser.uid}`, JSON.stringify(userData));
+                showSyncIndicator();
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                
+                // Ensure we're not saving undefined/null values
+                const dataToSave = {
+                    points: userData.points || 0,
+                    history: userData.history || [],
+                    activities: userData.activities || [],
+                    level: userData.level || 1,
+                    streak: userData.streak || 0,
+                    lastLogin: userData.lastLogin || new Date().toISOString(),
+                    updatedAt: serverTimestamp()
+                };
+                
+                await updateDoc(userDocRef, dataToSave);
             } catch (error) {
                 console.error('Save error:', error);
+                showToast('Error saving data', 'error');
+            }
+        }
+
+        function showSyncIndicator() {
+            const indicator = document.getElementById('syncIndicator');
+            if (indicator) {
+                indicator.style.display = 'inline-block';
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 2000);
             }
         }
 
         function updateUI() {
-            document.getElementById('navPoints').textContent = userData.points;
-            document.getElementById('totalPoints').textContent = userData.points;
-            document.getElementById('totalRedeemed').textContent = userData.history.filter(h => h.type === 'spent').length;
-            document.getElementById('currentStreak').textContent = userData.streak;
+            console.log('Updating UI with points:', userData.points);
+            document.getElementById('navPoints').textContent = userData.points || 0;
+            document.getElementById('totalPoints').textContent = userData.points || 0;
+            document.getElementById('totalRedeemed').textContent = (userData.history || []).filter(h => h.type === 'spent').length;
+            document.getElementById('currentStreak').textContent = userData.streak || 0;
             
-            const level = Math.floor(userData.points / 1000) + 1;
+            const level = Math.floor((userData.points || 0) / 1000) + 1;
             userData.level = level;
             document.getElementById('userLevel').textContent = level;
             
-            const progress = (userData.points % 1000) / 10;
+            const progress = ((userData.points || 0) % 1000) / 10;
             document.getElementById('levelProgress').style.width = progress + '%';
         }
 
@@ -791,7 +944,7 @@
             const now = Date.now();
             
             grid.innerHTML = earnActivities.map(activity => {
-                const userActivity = userData.activities.find(a => a.id === activity.id);
+                const userActivity = (userData.activities || []).find(a => a.id === activity.id);
                 const canClaim = !userActivity || (now - userActivity.lastClaimed) >= activity.cooldown;
                 const timeLeft = userActivity && !canClaim ? activity.cooldown - (now - userActivity.lastClaimed) : 0;
                 
@@ -815,8 +968,10 @@
             }).join('');
 
             document.querySelectorAll('[data-activity]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    claimActivity(this.getAttribute('data-activity'));
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const activityId = this.getAttribute('data-activity');
+                    claimActivity(activityId);
                 });
             });
         }
@@ -832,9 +987,9 @@
                         <div class="reward-description">${reward.desc}</div>
                         <div class="reward-footer">
                             <div class="reward-price">${reward.points} pts</div>
-                            <button class="btn ${userData.points >= reward.points ? 'btn-primary' : 'btn-secondary'}" 
+                            <button class="btn ${(userData.points || 0) >= reward.points ? 'btn-primary' : 'btn-secondary'}" 
                                     data-reward="${reward.id}" 
-                                    ${userData.points < reward.points ? 'disabled' : ''}>
+                                    ${(userData.points || 0) < reward.points ? 'disabled' : ''}>
                                 Redeem
                             </button>
                         </div>
@@ -852,7 +1007,7 @@
         function loadHistory() {
             const container = document.getElementById('historyContainer');
             
-            if (userData.history.length === 0) {
+            if (!userData.history || userData.history.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">📊</div>
@@ -883,53 +1038,77 @@
             const activity = earnActivities.find(a => a.id === activityId);
             if (!activity) return;
 
-            // If activity has a link, open it in new tab
-            if (activity.link) {
-                window.open(activity.link, '_blank');
+            try {
+                if (activity.link) {
+                    window.open(activity.link, '_blank');
+                }
+
+                // Initialize arrays if they don't exist
+                if (!userData.activities) userData.activities = [];
+                if (!userData.history) userData.history = [];
+
+                userData.points = (userData.points || 0) + activity.points;
+                
+                const existing = userData.activities.find(a => a.id === activityId);
+                if (existing) {
+                    existing.lastClaimed = Date.now();
+                } else {
+                    userData.activities.push({ id: activityId, lastClaimed: Date.now() });
+                }
+
+                userData.history.unshift({
+                    id: Date.now(),
+                    type: 'earned',
+                    title: activity.title,
+                    points: activity.points,
+                    date: new Date().toISOString()
+                });
+
+                // Keep history to last 50 items
+                if (userData.history.length > 50) {
+                    userData.history = userData.history.slice(0, 50);
+                }
+
+                await saveUserData();
+                showToast(`Earned ${activity.points} points!`, 'success');
+            } catch (error) {
+                console.error('Error claiming activity:', error);
+                showToast('Error claiming reward. Please try again.', 'error');
             }
-
-            userData.points += activity.points;
-            
-            const existing = userData.activities.find(a => a.id === activityId);
-            if (existing) {
-                existing.lastClaimed = Date.now();
-            } else {
-                userData.activities.push({ id: activityId, lastClaimed: Date.now() });
-            }
-
-            userData.history.unshift({
-                id: Date.now(),
-                type: 'earned',
-                title: activity.title,
-                points: activity.points,
-                date: new Date().toISOString()
-            });
-
-            await saveUserData();
-            updateUI();
-            loadEarnActivities();
-            showMessage('loginMessage', `Earned ${activity.points} points!`, 'success');
         }
 
         async function redeemReward(rewardId) {
             const reward = rewards.find(r => r.id === rewardId);
-            if (!reward || userData.points < reward.points) return;
+            if (!reward || (userData.points || 0) < reward.points) {
+                showToast('Not enough points!', 'error');
+                return;
+            }
 
             if (confirm(`Redeem ${reward.name} for ${reward.points} points?`)) {
-                userData.points -= reward.points;
-                
-                userData.history.unshift({
-                    id: Date.now(),
-                    type: 'spent',
-                    title: reward.name,
-                    points: reward.points,
-                    date: new Date().toISOString()
-                });
+                try {
+                    if (!userData.history) userData.history = [];
+                    
+                    userData.points = (userData.points || 0) - reward.points;
+                    
+                    userData.history.unshift({
+                        id: Date.now(),
+                        type: 'spent',
+                        title: reward.name,
+                        points: reward.points,
+                        date: new Date().toISOString()
+                    });
 
-                await saveUserData();
-                updateUI();
-                loadRewards();
-                showMessage('loginMessage', `Successfully redeemed ${reward.name}!`, 'success');
+                    if (userData.history.length > 50) {
+                        userData.history = userData.history.slice(0, 50);
+                    }
+
+                    await saveUserData();
+                    loadRewards();
+                    showToast(`Successfully redeemed ${reward.name}!`, 'success');
+                } catch (error) {
+                    console.error('Error redeeming reward:', error);
+                    showToast('Error redeeming reward. Please try again.', 'error');
+                }
             }
         }
 
@@ -950,6 +1129,15 @@
             msg.className = `message ${type}`;
             msg.style.display = 'block';
             setTimeout(() => msg.style.display = 'none', 3000);
+        }
+
+        function showToast(text, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         // Navigation
@@ -1028,7 +1216,10 @@
                     </div>
                 `;
                 
-                document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+                document.getElementById('logoutBtn').addEventListener('click', async () => {
+                    if (unsubscribe) unsubscribe();
+                    await signOut(auth);
+                });
                 
                 document.getElementById('welcomeTitle').textContent = `Welcome back, ${user.email.split('@')[0]}!`;
                 document.getElementById('welcomeText').textContent = 'Continue earning and redeeming rewards';
@@ -1036,6 +1227,7 @@
                 
                 await loadUserData();
             } else {
+                if (unsubscribe) unsubscribe();
                 currentUser = null;
                 document.getElementById('navLinks').style.display = 'none';
                 document.getElementById('pointsBadge').style.display = 'none';
