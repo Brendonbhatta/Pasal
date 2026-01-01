@@ -78,6 +78,33 @@
             margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* REFERRAL HIGHLIGHT STYLES */
+        .referral-highlight {
+            border: 2px solid var(--accent) !important;
+            background: rgba(124, 58, 237, 0.1);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .referral-highlight::before {
+            content: "HOT OFFER";
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: var(--warning);
+            color: black;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 35px;
+            transform: rotate(45deg);
+        }
+
+        .bonus-text {
+            color: var(--success);
+            font-weight: 800;
+        }
+
         .action-btn { 
             background: var(--accent); color: white; border: none; padding: 12px;
             border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 10px;
@@ -121,9 +148,13 @@
         <button class="action-btn" id="daily-btn" onclick="claimDaily()">CLAIM 50 PTS</button>
     </div>
 
-    <div class="card" style="border: 1px dashed var(--accent);">
-        <p style="font-size: 0.8rem; margin: 0;">Your Referral Link</p>
-        <button class="action-btn" style="background: transparent; border: 1px solid var(--accent);" onclick="copyLink()">COPY LINK</button>
+    <div class="card referral-highlight">
+        <p style="font-size: 0.8rem; margin: 0; opacity: 0.8;">Invite Friends</p>
+        <h3 style="margin: 5px 0;">Get <span class="bonus-text">1,000 POINTS</span> Each!</h3>
+        <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 15px;">
+            Share your link. When a friend joins, you both get a massive bonus.
+        </p>
+        <button class="action-btn" style="background: transparent; border: 2px solid var(--accent);" onclick="copyLink()">COPY INVITE LINK</button>
     </div>
 </div>
 
@@ -166,13 +197,16 @@
         { id: 'q5', title: 'like Video 2', pts: 150, url: 'https://www.youtube.com/shorts/VHvKMKgbpuM' }
     ];
 
+    // FIXED REWARDS ARRAY
     const REWARDS = [
         { name: '500 Robux', cost: 3000 },
+        { name: '1000 Robux', cost: 6000 },
         { name: '1000 FreeFire Diamonds', cost: 2500 },
+        { name: '2000 FreeFire Diamonds', cost: 5000 },
         { name: 'MLBB 1000 Diamonds', cost: 8000 },
+        { name: 'MLBB 2000 Diamonds', cost: 12000 }
     ];
 
-    // Added Cyber_Hero with 1200 points
     const FAKE_PLAYERS = [
         { name: "SumanYT", pts: 8500 }, 
         { name: "Rohan_Pro", pts: 6200 }, 
@@ -199,10 +233,12 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         
-        // Handle nav highlighting
-        if (event && event.currentTarget) {
-            event.currentTarget.classList.add('active');
-        }
+        // Handle nav highlighting logic
+        const navItems = document.querySelectorAll('.nav-item');
+        if (pageId === 'home') navItems[0].classList.add('active');
+        if (pageId === 'leaderboard') navItems[1].classList.add('active');
+        if (pageId === 'earn') navItems[2].classList.add('active');
+        if (pageId === 'rewards') navItems[3].classList.add('active');
         
         if(pageId === 'leaderboard') renderLeaderboard();
     }
@@ -222,13 +258,10 @@
 
     function renderLeaderboard() {
         const myName = localStorage.getItem('pasal_name') || "You";
-        
-        // Only include the user if their points are STRICTLY MORE than 1200
         let displayList = [...FAKE_PLAYERS];
         if (points > 1200) {
             displayList.push({ name: myName + " (You)", pts: points });
         }
-
         let all = displayList.sort((a,b) => b.pts - a.pts);
 
         document.getElementById('lb-data').innerHTML = all.map((p, i) => `
@@ -323,8 +356,10 @@
     }
 
     function copyLink() {
-        navigator.clipboard.writeText("https://brendonbhatta.github.io/Pasal/");
-        alert("Referral link copied!");
+        // Updated copy text to show the 1,000 point reward
+        const inviteText = "Use my link to join Pasal Rewards and get 1,000 points instantly! https://brendonbhatta.github.io/Pasal/";
+        navigator.clipboard.writeText(inviteText);
+        alert("Referral link copied! Send it to friends to earn 1,000 points.");
     }
 
     init();
