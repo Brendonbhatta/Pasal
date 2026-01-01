@@ -585,6 +585,54 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
+
+        .notification-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .notification-icon {
+            font-size: 1.5em;
+        }
+
+        .notification-text {
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #856404;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .notification-close:hover {
+            background: rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -620,6 +668,17 @@
             </div>
 
             <div id="dashboardContent" style="display: none;">
+                <!-- Notification Banner -->
+                <div class="notification-banner" id="notificationBanner">
+                    <div class="notification-content">
+                        <div class="notification-icon">⚠️</div>
+                        <div class="notification-text">
+                            <strong>Important:</strong> The points on refreshing resets to 500. It will take 3 days for the points to successfully come in your ID.
+                        </div>
+                    </div>
+                    <button class="notification-close" id="closeNotification">&times;</button>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">⚡</div>
@@ -720,6 +779,21 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Share with Friends</h2>
+                <button class="close-modal" id="closeShare">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; color: #605e5c;">Copy and share this link with your friends!</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="shareLink" value="YOUR_SHARE_LINK_HERE" readonly style="flex: 1; padding: 12px; border: 1px solid #8a8886; border-radius: 4px; font-size: 15px;">
+                <button class="btn btn-primary" id="copyLinkBtn">Copy Link</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -753,22 +827,21 @@
         const earnActivities = [
             { id: 'daily', icon: '📅', title: 'Daily Check-in', desc: 'Login daily to earn bonus points', points: 50, cooldown: 24 * 60 * 60 * 1000, badge: 'DAILY' },
             { id: 'subscribe', icon: '▶️', title: 'Subscribe on YouTube', desc: 'Subscribe to our YouTube channel', points: 200, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/@AnimatedSheikh', badge: 'DAILY' },
-            { id: 'quiz', icon: '🎯', title: 'Daily Quiz', desc: 'Answer trivia questions', points: 30, cooldown: 24 * 60 * 60 * 1000, badge: 'DAILY' },
-            { id: 'poll', icon: '📊', title: 'Daily Poll', desc: 'Share your opinion', points: 10, cooldown: 24 * 60 * 60 * 1000, badge: 'DAILY' },
-            { id: 'video', icon: '📺', title: 'Watch Videos', desc: 'Watch featured content', points: 25, cooldown: 6 * 60 * 60 * 1000 },
-            { id: 'survey', icon: '📝', title: 'Complete Survey', desc: 'Help us improve', points: 150, cooldown: 7 * 24 * 60 * 60 * 1000, badge: 'WEEKLY' },
-            { id: 'share', icon: '📤', title: 'Share with Friends', desc: 'Invite friends to join', points: 200, cooldown: 24 * 60 * 60 * 1000 },
-            { id: 'review', icon: '⭐', title: 'Leave a Review', desc: 'Rate your experience', points: 100, cooldown: 30 * 24 * 60 * 60 * 1000, badge: 'MONTHLY' }
+            { id: 'quiz', icon: '📺', title: 'like Video 1', desc: 'Watch: What Happens If You Double Your Money Every Day?', points: 30, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q', badge: 'DAILY' },
+            { id: 'poll', icon: '📺', title: 'like Video 2', desc: 'like video', points: 10, cooldown: 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/watch?v=SInlMgLlfKQ', badge: 'DAILY' },
+            { id: 'video', icon: '📺', title: 'like Video 3', desc: 'like video', points: 25, cooldown: 6 * 60 * 60 * 1000, link: 'https://www.youtube.com/shorts/VHvKMKgbpuM' },
+            { id: 'survey', icon: '📺', title: 'like Video 4', desc: 'like video', points: 150, cooldown: 7 * 24 * 60 * 60 * 1000, link: 'https://www.youtube.com/shorts/ytAOSALIHeE', badge: 'WEEKLY' },
+            { id: 'share', icon: '📤', title: 'Share with Friends', desc: 'Copy and share your referral link', points: 0, cooldown: 0, isShare: true }
         ];
 
         const rewards = [
             { id: 1, icon: '🎮', name: 'Xbox Gift Card', desc: '$10 Xbox Store credit', points: 10000 },
-            { id: 2, icon: '🎵', name: 'Spotify Premium', desc: '3 months subscription', points: 15000 },
-            { id: 3, icon: '🍿', name: 'Netflix Gift Card', desc: '$25 Netflix credit', points: 25000 },
-            { id: 4, icon: '☕', name: 'Starbucks Card', desc: '$5 coffee voucher', points: 5000 },
-            { id: 5, icon: '📱', name: 'App Store Gift Card', desc: '$10 App Store credit', points: 10000 },
-            { id: 6, icon: '🎯', name: 'Amazon Gift Card', desc: '$20 Amazon credit', points: 20000 },
-            { id: 7, icon: '🎬', name: 'Movie Tickets', desc: '2 cinema tickets', points: 12000 },
+            { id: 2, icon: '🎮', name: 'Roblox 1000 Robux', desc: '1000 Robux for Roblox', points: 15000 },
+            { id: 3, icon: '🎮', name: 'Roblox 2000 Robux', desc: '2000 Robux for Roblox', points: 25000 },
+            { id: 4, icon: '📱', name: 'Play Store Gift Card', desc: '$5 Play Store credit', points: 5000 },
+            { id: 5, icon: '🎮', name: 'Mobile Legends 500 Diamonds', desc: '500 Diamonds for Mobile Legends', points: 10000 },
+            { id: 6, icon: '💰', name: 'Rs 1000', desc: 'Cash reward Rs 1000', points: 20000 },
+            { id: 7, icon: '💎', name: 'Free Fire 1000 Diamonds', desc: '1000 Diamonds for Free Fire', points: 12000 },
             { id: 8, icon: '🎁', name: 'Mystery Box', desc: 'Random reward surprise', points: 8000 }
         ];
 
@@ -944,6 +1017,23 @@
             const now = Date.now();
             
             grid.innerHTML = earnActivities.map(activity => {
+                // Special handling for share activity
+                if (activity.isShare) {
+                    return `
+                        <div class="earn-card">
+                            <div class="earn-header">
+                                <div class="earn-icon">${activity.icon}</div>
+                                <div class="earn-title">${activity.title}</div>
+                            </div>
+                            <div class="earn-description">${activity.desc}</div>
+                            <div class="earn-footer">
+                                <div class="earn-points">Share & Earn</div>
+                                <button class="btn btn-primary" data-share="true">Get Link</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 const userActivity = (userData.activities || []).find(a => a.id === activity.id);
                 const canClaim = !userActivity || (now - userActivity.lastClaimed) >= activity.cooldown;
                 const timeLeft = userActivity && !canClaim ? activity.cooldown - (now - userActivity.lastClaimed) : 0;
@@ -967,11 +1057,20 @@
                 `;
             }).join('');
 
+            // Handle regular activities
             document.querySelectorAll('[data-activity]').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const activityId = this.getAttribute('data-activity');
                     claimActivity(activityId);
+                });
+            });
+
+            // Handle share button
+            document.querySelectorAll('[data-share]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('shareModal').classList.add('active');
                 });
             });
         }
@@ -1176,6 +1275,19 @@
         document.getElementById('showLogin').addEventListener('click', () => {
             document.getElementById('signupModal').classList.remove('active');
             document.getElementById('loginModal').classList.add('active');
+        });
+
+        // Share Modal
+        document.getElementById('closeShare').addEventListener('click', () => {
+            document.getElementById('shareModal').classList.remove('active');
+        });
+
+        document.getElementById('copyLinkBtn').addEventListener('click', () => {
+            const linkInput = document.getElementById('shareLink');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(linkInput.value);
+            showToast('Link copied to clipboard!', 'success');
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
