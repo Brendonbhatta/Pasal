@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pasal Rewards Pro</title>
+
+    <meta name="title" content="Pasal Rewards Pro">
+    <meta name="description" content="Earn points by completing simple tasks and redeem them for Robux, Free Fire Diamonds, and more!">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://brendonbhatta.github.io/Pasal/">
+    <meta property="og:title" content="Pasal Rewards Pro">
+    <meta property="og:description" content="Join Pasal Rewards to earn points and win game currency!">
+    <meta property="og:image" content="https://brendonbhatta.github.io/Pasal/logo.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://brendonbhatta.github.io/Pasal/">
+    <meta property="twitter:title" content="Pasal Rewards Pro">
+    <meta property="twitter:description" content="Join Pasal Rewards to earn points and win game currency!">
+    <meta property="twitter:image" content="https://brendonbhatta.github.io/Pasal/logo.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -229,7 +245,6 @@
         renderQuests();
         renderRewards();
         setInterval(updateDailyStatus, 1000);
-        // Refresh Earn page every second to update countdowns
         setInterval(() => {
             if (document.getElementById('earn').classList.contains('active')) {
                 renderQuests();
