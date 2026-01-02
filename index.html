@@ -9,16 +9,16 @@
     <meta name="description" content="Earn points by completing simple tasks and redeem them for Robux, Free Fire Diamonds, and more!">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://brendonbhatta.github.io/Pasal/">
-    <meta property="og:title" content="Pasal Rewards Pro">
-    <meta property="og:description" content="Join Pasal Rewards to earn points and win game currency!">
-    <meta property="og:image" content="https://brendonbhatta.github.io/Pasal/logo.png">
+    <meta property="og:url" content="https://pasalreward.github.io/Pasal/">
+    <meta property="og:title" content="Pasal Rewards">
+    <meta property="og:description" content="Official Pasal Rewards Page">
+    <meta property="og:image" content="https://pasalreward.github.io/Pasal/preview.png">
 
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://brendonbhatta.github.io/Pasal/">
+    <meta property="twitter:url" content="https://pasalreward.github.io/Pasal/">
     <meta property="twitter:title" content="Pasal Rewards Pro">
     <meta property="twitter:description" content="Join Pasal Rewards to earn points and win game currency!">
-    <meta property="twitter:image" content="https://brendonbhatta.github.io/Pasal/logo.png">
+    <meta property="twitter:image" content="https://pasalreward.github.io/Pasal/preview.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -128,7 +128,6 @@
         th { text-align: left; color: var(--text-sub); font-size: 0.8rem; padding: 10px; }
         td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .me-row { background: rgba(124, 58, 237, 0.1); }
-
     </style>
 </head>
 <body>
@@ -200,7 +199,7 @@
 <script>
     let points = parseInt(localStorage.getItem('pasal_pts')) || 0;
     const COOLDOWN = 24 * 60 * 60 * 1000;
-    const QUEST_TIMER = 15000; // 15 seconds
+    const QUEST_TIMER = 15000; 
 
     const QUESTS = [
         { id: 'q1', title: 'Subscribe to Channel', pts: 200, url: 'https://www.youtube.com/@AnimatedSheikh' },
@@ -394,13 +393,10 @@
     function copyLink() {
         const shareMsg = "https://pasalreward.github.io/Pasal/";
         navigator.clipboard.writeText(shareMsg);
-        alert("Referral Link Copied! Share with friends to get 1,000 pts.");
+        alert("Referral Link Copied! Share with friends to get 500 pts.");
     }
 
     init();
 </script>
 </body>
 </html>
-
-
-
