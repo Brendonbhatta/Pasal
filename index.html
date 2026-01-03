@@ -124,7 +124,6 @@
         td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .me-row { background: rgba(124, 58, 237, 0.1); }
 
-        /* History Styles */
         .history-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -161,14 +160,14 @@
     <div class="card">
         <h3>Daily Bonus</h3>
         <p id="daily-timer" style="color: var(--text-sub);">Ready to claim!</p>
-        <button class="action-btn" id="daily-btn" onclick="claimDaily()">CLAIM 50 PTS</button>
+        <button class="action-btn" id="daily-btn" onclick="claimDaily()">CLAIM 25 PTS</button>
     </div>
 
     <div class="card referral-highlight">
         <p style="font-size: 0.8rem; margin: 0; opacity: 0.8;">Limited Time Bonus</p>
-        <h3 style="margin: 5px 0;">Invite & Get <span class="bonus-text">500 PTS</span></h3>
+        <h3 style="margin: 5px 0;">Invite & Get <span class="bonus-text">100 PTS</span></h3>
         <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 15px;">
-            Copy your unique link and send it to friends. Get 500 points for every person who joins!
+            Copy your unique link and send it to friends. Get 100 points for every person who joins!
         </p>
         <button class="action-btn" style="background: transparent; border: 2px solid var(--accent);" onclick="copyLink()">COPY INVITE LINK</button>
     </div>
@@ -211,18 +210,18 @@
 
 <script>
     let points = parseInt(localStorage.getItem('pasal_pts')) || 0;
-    // Load History from storage
     let pointHistory = JSON.parse(localStorage.getItem('pasal_history')) || [];
 
     const COOLDOWN = 24 * 60 * 60 * 1000;
-    const QUEST_TIMER = 15000; 
+    const QUEST_TIMER = 20000; // Increased to 20 seconds for balance
 
+    // Points reduced for better economy
     const QUESTS = [
-        { id: 'q1', title: 'Subscribe to Channel', pts: 200, url: 'https://www.youtube.com/@AnimatedSheikh' },
-        { id: 'q2', title: 'Watch FULL Video', pts: 100, url: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
-        { id: 'q3', title: 'Watch FULL Video 2', pts: 150, url: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q' },
-        { id: 'q4', title: 'like Video', pts: 150, url: 'https://www.youtube.com/shorts/ZHSeV5A74QY' },
-        { id: 'q5', title: 'like Video 2', pts: 150, url: 'https://www.youtube.com/shorts/VHvKMKgbpuM' }
+        { id: 'q1', title: 'Subscribe to Channel', pts: 40, url: 'https://www.youtube.com/@AnimatedSheikh' },
+        { id: 'q2', title: 'Watch Video 1', pts: 25, url: 'https://www.youtube.com/watch?v=SInlMgLlfKQ' },
+        { id: 'q3', title: 'Watch Video 2', pts: 30, url: 'https://www.youtube.com/watch?v=ALSEpg-mz5Q' },
+        { id: 'q4', title: 'Like Short 1', pts: 15, url: 'https://www.youtube.com/shorts/ZHSeV5A74QY' },
+        { id: 'q5', title: 'Like Short 2', pts: 15, url: 'https://www.youtube.com/shorts/VHvKMKgbpuM' }
     ];
 
     const REWARDS = [
@@ -242,11 +241,11 @@
     ];
 
     const FAKE_PLAYERS = [
-        { name: "SumanYT", pts: 8500 }, 
-        { name: "Rohan_Pro", pts: 6200 }, 
-        { name: "Nepal_Gamer", pts: 4100 }, 
-        { name: "Cyber_Hero", pts: 1200 }, 
-        { name: "Lucky_07", pts: 1100 }
+        { name: "SumanYT", pts: 2500 }, 
+        { name: "Rohan_Pro", pts: 1800 }, 
+        { name: "Nepal_Gamer", pts: 1100 }, 
+        { name: "Cyber_Hero", pts: 600 }, 
+        { name: "Lucky_07", pts: 450 }
     ];
 
     function init() {
@@ -257,7 +256,6 @@
             document.getElementById('user-display').innerText = name;
         }
         updateUI();
-        renderQuests();
         renderRewards();
         renderHistory();
         setInterval(updateDailyStatus, 1000);
@@ -281,15 +279,14 @@
         if (pageId === 'history') { navItems[4].classList.add('active'); renderHistory(); }
     }
 
-    // --- NEW HISTORY SYSTEM ---
     function addHistory(desc, amt) {
         const entry = {
             description: desc,
             amount: amt,
             date: new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         };
-        pointHistory.unshift(entry); // Add to top
-        if(pointHistory.length > 20) pointHistory.pop(); // Keep last 20 entries
+        pointHistory.unshift(entry);
+        if(pointHistory.length > 20) pointHistory.pop();
         localStorage.setItem('pasal_history', JSON.stringify(pointHistory));
         renderHistory();
     }
@@ -312,7 +309,6 @@
             </div>
         `).join('');
     }
-    // ---------------------------
 
     function saveName() {
         const val = document.getElementById('username-input').value.trim();
@@ -330,7 +326,7 @@
     function renderLeaderboard() {
         const myName = localStorage.getItem('pasal_name') || "You";
         let displayList = [...FAKE_PLAYERS];
-        if (points > 1200) {
+        if (points > 100) {
             displayList.push({ name: myName + " (You)", pts: points });
         }
         let all = displayList.sort((a,b) => b.pts - a.pts);
@@ -346,18 +342,22 @@
 
     function renderQuests() {
         document.getElementById('quest-list').innerHTML = QUESTS.map(q => {
-            const done = localStorage.getItem('done-' + q.id);
+            const lastDone = localStorage.getItem('done-' + q.id);
             const startTime = localStorage.getItem('start-' + q.id);
             
             let btnText = "Start Quest";
             let btnFn = `startQuest('${q.id}', '${q.url}')`;
             let isDisabled = false;
             
-            if (done && (Date.now() - done < COOLDOWN)) {
-                btnText = "Completed";
+            if (lastDone && (Date.now() - parseInt(lastDone) < COOLDOWN)) {
+                const rem = COOLDOWN - (Date.now() - parseInt(lastDone));
+                const h = Math.floor(rem / 3600000);
+                const m = Math.floor((rem % 3600000) / 60000);
+                btnText = `Retry in ${h}h ${m}m`;
                 isDisabled = true;
                 btnFn = "";
-            } else if (startTime) {
+            } 
+            else if (startTime) {
                 const elapsed = Date.now() - parseInt(startTime);
                 const remaining = Math.ceil((QUEST_TIMER - elapsed) / 1000);
                 
@@ -392,12 +392,12 @@
 
     function claimQuest(id, amt, title) {
         points += amt;
-        addHistory("Quest: " + title, amt); // LOG HISTORY
+        addHistory("Quest: " + title, amt);
         localStorage.removeItem('start-' + id);
-        localStorage.setItem('done-' + id, Date.now());
+        localStorage.setItem('done-' + id, Date.now().toString()); 
         updateUI();
         renderQuests();
-        alert("Points added successfully!");
+        alert("Success! Check back in 24h.");
     }
 
     function renderRewards() {
@@ -413,17 +413,17 @@
     function redeem(name, cost) {
         if (points >= cost) {
             points -= cost;
-            addHistory("Shop: " + name, -cost); // LOG HISTORY
+            addHistory("Shop: " + name, -cost);
             updateUI();
-            alert("Order Requested: " + name + ". Your order is placed. We will verify it and let you know! Might take up to 3 days.");
+            alert("Order Requested: " + name + ". Takes up to 3 days.");
         } else {
-            alert("Not enough points! You need " + (cost - points).toLocaleString() + " more points.");
+            alert("Need " + (cost - points).toLocaleString() + " more points.");
         }
     }
 
     function claimDaily() {
-        points += 50;
-        addHistory("Daily Reward", 50); // LOG HISTORY
+        points += 25; // Reduced daily points
+        addHistory("Daily Reward", 25);
         localStorage.setItem('last_daily', Date.now());
         updateUI();
         updateDailyStatus();
@@ -447,7 +447,7 @@
     function copyLink() {
         const shareMsg = "https://pasalreward.github.io/Pasal/";
         navigator.clipboard.writeText(shareMsg);
-        alert("Referral Link Copied! Share with friends to get 500 pts.");
+        alert("Copied!");
     }
 
     init();
